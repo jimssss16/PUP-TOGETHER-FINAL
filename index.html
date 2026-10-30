@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PUP TOGETHER</title>
+<meta name="description" content="PUP TOGETHER: a student hub for activities, class posts, messages, study groups, and tasks.">
+<meta name="theme-color" content="#7a0f12" id="metaTheme">
+<link rel="icon" type="image/png" href="/pup-logo.png">
+<script>
+/* Set the theme before the page paints so there is no flash. */
+(function () {
+  try {
+    var t = localStorage.getItem('pup-theme');
+    if (t !== 'dark' && t !== 'light') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) { /* ignore */ }
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root, :root[data-theme="light"]{
+  color-scheme:light;
+  --maroon:#7a0f12; --maroon-d:#4e090b; --maroon-m:#9b1b1f;
+  --gold:#f0b323; --gold-d:#b8830a;
+  --bg:#fbf7f0; --glow:rgba(240,179,35,.14); --bar:rgba(251,247,240,.88);
+  --surface:#ffffff; --surface-2:#fffdf9; --soft:#fbf7f0; --line:#eadfd2;
+  --ink:#2a1717; --muted:#7b6a68; --head:#7a0f12; --link:#9b1b1f;
+  --chip-bg:#fdf1cf; --chip-fg:#7a0f12; --accent:#7a0f12; --accent-h:#4e090b;
+  --warn:#b8830a; --ok:#2e7d4f; --bad:#b42318; --bad-bg:#fde8e6;
+  --mine:#7a0f12; --mine-fg:#ffffff; --theirs:#f4ece1;
+  --shadow:0 1px 2px rgba(78,9,11,.06),0 10px 28px rgba(78,9,11,.07);
+  --radius:18px;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#150c0d; --glow:rgba(240,179,35,.07); --bar:rgba(21,12,13,.88);
+  --surface:#211416; --surface-2:#2b1b1d; --soft:#2b1b1d; --line:#412d30;
+  --ink:#f4e9e4; --muted:#b9a39e; --head:#f0b323; --link:#f0b323;
+  --chip-bg:rgba(240,179,35,.16); --chip-fg:#f6cd5e; --accent:#a3191e; --accent-h:#bb2227;
+  --warn:#f0b323; --ok:#5cc489; --bad:#ff8a7d; --bad-bg:rgba(255,138,125,.14);
+  --mine:#a3191e; --mine-fg:#ffffff; --theirs:#2f1f21;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg) radial-gradient(circle at 100% 0,var(--glow),transparent 38%);
+  background-attachment:fixed; color:var(--ink); line-height:1.5; -webkit-font-smoothing:antialiased;
+  transition:background-color .25s,color .25s;
+}
+h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif; margin:0; line-height:1.2}
+h4{font-family:'Poppins',system-ui,sans-serif}
+p{margin:0}
+a{color:inherit}
+button{font:inherit; cursor:pointer; color:inherit}
+button:disabled{opacity:.6; cursor:not-allowed}
+:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+.ico{flex:none}
+
+/* ---------- Boot + auth ---------- */
+.boot{position:fixed; inset:0; display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center; font-family:'Playfair Display',Georgia,serif; font-size:1.4rem; color:var(--head); background:var(--bg)}
+.auth{
+  min-height:100vh; display:grid; place-items:center; padding:24px; position:relative;
+  background:linear-gradient(135deg,var(--maroon-d),var(--maroon) 55%,var(--maroon-m));
+}
+.auth::before{content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 85% 10%,rgba(240,179,35,.5),transparent 40%),radial-gradient(rgba(240,179,35,.16) 1px,transparent 1.6px) 0 0/18px 18px}
+.theme-float{position:absolute; top:16px; right:16px; color:#fff; z-index:2; background:rgba(255,255,255,.12)}
+.icon-btn.theme-float{color:#fff; background:rgba(255,255,255,.14)}
+.icon-btn.theme-float:hover{background:rgba(255,255,255,.26); color:#fff}
+.auth-card{position:relative; z-index:1; width:min(100%,430px); background:var(--surface); border-radius:24px; padding:30px; box-shadow:0 30px 70px rgba(0,0,0,.4); border-top:6px solid var(--gold)}
+.auth-brand{display:flex; align-items:center; gap:12px; margin-bottom:20px}
+.auth-brand strong{display:block; font-family:'Playfair Display',Georgia,serif; font-size:1.3rem; color:var(--head); letter-spacing:.04em}
+.auth-brand small{color:var(--muted); font-size:.8rem}
+.tabs{display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:6px; padding:5px; border-radius:14px; background:var(--soft); margin-bottom:18px}
+.tab{border:0; background:transparent; padding:9px; border-radius:10px; font-weight:500; color:var(--muted)}
+.tab.on{background:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(122,15,18,.3)}
+.auth-notice{padding:10px 14px; border-radius:12px; background:var(--chip-bg); color:var(--chip-fg); font-size:.86rem; margin-bottom:14px}
+.auth-notice button{margin-top:8px}
+.seg{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.seg button{padding:10px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font-weight:500; color:var(--muted)}
+.seg button.on{border-color:var(--accent); background:var(--chip-bg); color:var(--head)}
+.hint{font-size:.78rem; color:var(--muted); margin-top:4px}
+
+/* ---------- Logo, ID card, accounts ---------- */
+.logo{display:block; border-radius:50%; object-fit:cover; flex:none; background:#fff; box-shadow:0 4px 14px rgba(0,0,0,.28)}
+.logo.lg{width:64px; height:64px}
+.logo.xl{width:104px; height:104px}
+.brand .logo{width:46px; height:46px}
+.chip.admin{background:var(--accent); color:#fff}
+.idcard{display:flex; align-items:center; gap:14px; padding:14px; border-radius:16px; background:linear-gradient(120deg,var(--maroon-d),var(--maroon)); color:#fff; margin:16px 0 4px}
+.idcard .logo{width:56px; height:56px}
+.idcard small{display:block; color:var(--gold); letter-spacing:.1em; text-transform:uppercase; font-size:.66rem}
+.idcard b{display:block; font-size:1.02rem; overflow-wrap:anywhere}
+.idcard .idno{font-family:ui-monospace,Menlo,Consolas,monospace; letter-spacing:.06em; font-size:.95rem}
+.acc{display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px dashed var(--line)}
+.acc:first-child{padding-top:0}
+.acc:last-child{border-bottom:0; padding-bottom:0}
+.acc-main{flex:1; min-width:0}
+.acc-name{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-weight:600; overflow-wrap:anywhere}
+.acc-meta{font-size:.8rem; color:var(--muted); overflow-wrap:anywhere}
+.acc-actions{display:flex; gap:4px}
+.switch{display:flex; align-items:center; gap:14px; cursor:pointer; position:relative}
+.switch input{position:absolute; opacity:0; width:1px; height:1px}
+.switch .track{width:48px; height:28px; border-radius:99px; background:var(--line); position:relative; transition:background .2s; flex:none}
+.switch .track::after{content:""; position:absolute; top:4px; left:4px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked + .track{background:var(--accent)}
+.switch input:checked + .track::after{transform:translateX(20px)}
+.switch input:focus-visible + .track{outline:3px solid var(--gold); outline-offset:2px}
+.steps{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px; color:var(--ink)}
+.steps li::marker{color:var(--head); font-weight:600}
+
+/* ---------- Layout ---------- */
+.sidebar{
+  position:fixed; inset:0 auto 0 0; width:268px; z-index:40;
+  background:linear-gradient(180deg,var(--maroon) 0%,var(--maroon-d) 100%);
+  color:#fff; display:flex; flex-direction:column; padding:24px 16px; overflow-y:auto;
+  transition:transform .28s ease;
+}
+.sidebar::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.8; background-image:radial-gradient(rgba(240,179,35,.18) 1px,transparent 1.6px); background-size:18px 18px}
+.sidebar > *{position:relative}
+.brand{display:flex; align-items:center; gap:12px; text-decoration:none; padding:4px 8px 22px}
+.mono{
+  width:44px; height:44px; border-radius:14px; display:grid; place-items:center; flex:none;
+  background:linear-gradient(145deg,var(--gold),#ffd66b); color:var(--maroon-d);
+  font-family:'Playfair Display',Georgia,serif; font-weight:700; font-size:1.2rem; box-shadow:0 6px 16px rgba(0,0,0,.25);
+}
+.brand strong{display:block; font-family:'Playfair Display',Georgia,serif; font-size:1.15rem; letter-spacing:.04em}
+.brand small{display:block; color:rgba(255,255,255,.72); font-size:.74rem}
+.nav{display:flex; flex-direction:column; gap:4px}
+.nav a{display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:12px; text-decoration:none; color:rgba(255,255,255,.84); font-weight:500; font-size:.94rem; transition:background .2s,color .2s}
+.nav a:hover{background:rgba(255,255,255,.1); color:#fff}
+.nav a.active{background:var(--gold); color:var(--maroon-d); box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.nav .count{margin-left:auto; min-width:24px; height:24px; padding:0 7px; border-radius:99px; display:grid; place-items:center; background:rgba(255,255,255,.18); font-size:.74rem; font-weight:600}
+.nav .count.hot{background:var(--gold); color:var(--maroon-d)}
+.nav a.active .count{background:var(--maroon); color:#fff}
+.side-note{margin-top:auto; padding:16px; border-radius:16px; background:rgba(255,255,255,.08); border:1px solid rgba(240,179,35,.35); font-size:.82rem; color:rgba(255,255,255,.85)}
+.side-note b{display:block; font-family:'Playfair Display',Georgia,serif; font-size:1rem; color:var(--gold); margin-bottom:4px}
+.overlay{display:none}
+.main{margin-left:268px; min-height:100vh; display:flex; flex-direction:column}
+.topbar{position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px; padding:14px 32px; background:var(--bar); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+.topbar h1{font-size:1.5rem; color:var(--head)}
+.menu-btn{display:none}
+.spacer{flex:1}
+.today-chip{font-size:.84rem; color:var(--muted); display:flex; align-items:center; gap:8px; white-space:nowrap}
+.profile{display:flex; align-items:center; gap:10px; padding:5px 14px 5px 5px; border-radius:99px; background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow); max-width:230px}
+.av{width:36px; height:36px; border-radius:50%; display:grid; place-items:center; flex:none; background:var(--accent); color:var(--gold); font-weight:600}
+.av.prof{background:var(--gold); color:var(--maroon-d)}
+.profile .pname{font-size:.88rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.net{padding:8px 32px; background:var(--bad-bg); color:var(--bad); font-size:.84rem; font-weight:500; text-align:center}
+#view{padding:28px 32px 20px; flex:1; width:100%; max-width:1240px; margin:0 auto; outline:none}
+.footer{padding:18px 32px 28px; color:var(--muted); font-size:.78rem; text-align:center}
+
+/* ---------- Common ---------- */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 18px; border-radius:12px; border:1px solid transparent; font-weight:500; font-size:.92rem; text-decoration:none; transition:transform .15s,background .2s,box-shadow .2s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn.primary{background:var(--accent); color:#fff; box-shadow:0 6px 16px rgba(122,15,18,.28)}
+.btn.primary:hover:not(:disabled){background:var(--accent-h)}
+.btn.gold{background:var(--gold); color:var(--maroon-d); box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.btn.ghost{background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.4)}
+.btn.light{background:var(--surface); color:var(--ink); border-color:var(--line)}
+.btn.danger-ghost{background:transparent; color:var(--bad); border-color:var(--bad)}
+.btn.tiny{padding:6px 12px; font-size:.82rem; border-radius:10px}
+.btn.block{width:100%}
+.icon-btn{width:36px; height:36px; border-radius:10px; display:inline-grid; place-items:center; flex:none; background:transparent; border:1px solid transparent; color:var(--muted); transition:background .2s,color .2s}
+.icon-btn:hover{background:var(--chip-bg); color:var(--head)}
+.icon-btn.danger:hover{background:var(--bad-bg); color:var(--bad)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); min-width:0; transition:background-color .25s,border-color .25s}
+.card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px}
+.card-head h3{font-size:1.15rem; color:var(--head)}
+.card-head a{font-size:.84rem; color:var(--link); font-weight:500; text-decoration:none}
+.card-head a:hover{text-decoration:underline}
+.chip{display:inline-block; padding:2px 10px; border-radius:99px; background:var(--chip-bg); color:var(--chip-fg); font-size:.74rem; font-weight:500}
+.chip.prof{background:var(--gold); color:var(--maroon-d)}
+.empty{padding:26px 10px; text-align:center; color:var(--muted); font-size:.9rem}
+.empty b{display:block; font-family:'Playfair Display',Georgia,serif; font-size:1.05rem; color:var(--head); margin-bottom:4px}
+.page-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px}
+.page-head h2{font-size:1.9rem; color:var(--head)}
+.page-head p{color:var(--muted); font-size:.92rem; margin-top:4px}
+.list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column}
+.stack{display:flex; flex-direction:column; gap:16px}
+
+/* ---------- Dashboard ---------- */
+.hero{position:relative; overflow:hidden; border-radius:24px; padding:34px; color:#fff; background:linear-gradient(120deg,var(--maroon-d),var(--maroon) 45%,var(--maroon-m)); box-shadow:0 18px 40px rgba(78,9,11,.28); display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:space-between}
+.hero::before,.hero::after{content:""; position:absolute; border-radius:50%; pointer-events:none}
+.hero::before{width:320px; height:320px; right:-80px; top:-120px; background:radial-gradient(circle,rgba(240,179,35,.55),transparent 68%)}
+.hero::after{width:220px; height:220px; right:120px; bottom:-130px; border:2px solid rgba(240,179,35,.4)}
+.hero > *{position:relative; z-index:1}
+.eyebrow{font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); font-weight:500}
+.hero h2{font-size:2.05rem; margin:6px 0 10px; overflow-wrap:anywhere}
+.hero p.sum{max-width:580px; color:rgba(255,255,255,.9)}
+.hero-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:20px}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; margin:22px 0}
+.stat{display:flex; gap:14px; align-items:center; text-decoration:none; color:inherit}
+a.stat:hover{border-color:var(--gold)}
+.stat .bubble{width:48px; height:48px; border-radius:14px; background:var(--chip-bg); color:var(--head); display:grid; place-items:center; flex:none}
+.stat .num{font-family:'Playfair Display',Georgia,serif; font-size:1.9rem; font-weight:700; color:var(--head); line-height:1}
+.stat .lbl{font-size:.86rem; font-weight:500}
+.stat .sub{font-size:.74rem; color:var(--muted)}
+.g2{display:grid; grid-template-columns:1.6fr 1fr; gap:20px; margin-bottom:20px}
+.g3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; margin-bottom:20px}
+.ring-wrap{display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center}
+.ring{width:150px; height:150px}
+.ring-bg{fill:none; stroke:var(--chip-bg); stroke-width:10}
+.ring-fg{fill:none; stroke:var(--head); stroke-width:10; stroke-linecap:round}
+.ring-text{font-family:'Playfair Display',Georgia,serif; font-size:20px; font-weight:700; fill:var(--head)}
+.bars{display:flex; align-items:flex-end; gap:10px; height:150px; padding-top:6px}
+.bar{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; height:100%; min-width:0}
+.bar i{display:block; width:100%; max-width:34px; border-radius:8px 8px 4px 4px; background:linear-gradient(180deg,var(--gold),var(--gold-d)); min-height:6px}
+.bar i.zero{background:var(--line)}
+.bar span{font-size:.7rem; color:var(--muted)}
+.bar b{font-size:.78rem; color:var(--head)}
+
+/* ---------- Tasks, events, groups ---------- */
+.filters{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
+.filter{padding:7px 16px; border-radius:99px; background:var(--surface); border:1px solid var(--line); font-size:.86rem; font-weight:500; color:var(--muted)}
+.filter.on{background:var(--accent); color:#fff; border-color:var(--accent)}
+.task{display:flex; align-items:center; gap:14px; padding:13px 4px; border-bottom:1px dashed var(--line)}
+.task:last-child{border-bottom:0}
+.check{width:20px; height:20px; accent-color:var(--accent); flex:none; cursor:pointer}
+.task-main{flex:1; min-width:0}
+.task-title{font-weight:500; overflow-wrap:anywhere}
+.task.done .task-title{text-decoration:line-through; color:var(--muted)}
+.task-meta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:3px}
+.due{display:inline-flex; align-items:center; gap:5px; font-size:.78rem; color:var(--muted)}
+.due.late{color:var(--bad); font-weight:500}
+.due.soon{color:var(--warn); font-weight:500}
+.due.ok{color:var(--ok)}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:20px}
+.group{display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden}
+.group::before{content:""; position:absolute; left:0; top:0; right:0; height:5px; background:linear-gradient(90deg,var(--maroon),var(--gold))}
+.group h3{font-size:1.2rem; color:var(--head); overflow-wrap:anywhere}
+.group .desc{color:var(--muted); font-size:.9rem; overflow-wrap:anywhere}
+.group .meta{display:flex; flex-direction:column; gap:6px; font-size:.84rem}
+.group .meta span{display:flex; align-items:center; gap:8px}
+.group .foot{display:flex; gap:8px; align-items:center; margin-top:auto; padding-top:6px}
+.group .foot .btn{flex:1}
+.event{display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px dashed var(--line)}
+.event:last-child{border-bottom:0}
+.event.past{opacity:.55}
+.date-badge{width:52px; flex:none; text-align:center; border-radius:12px; overflow:hidden; border:1px solid var(--line); background:var(--surface)}
+.date-badge span{display:block; background:var(--accent); color:var(--gold); font-size:.66rem; letter-spacing:.1em; font-weight:600; padding:2px 0}
+.date-badge b{display:block; font-family:'Playfair Display',Georgia,serif; font-size:1.3rem; color:var(--head); padding:2px 0 4px}
+.event-main{flex:1; min-width:0}
+.event-title{font-weight:500; overflow-wrap:anywhere}
+.event-meta{font-size:.8rem; color:var(--muted); overflow-wrap:anywhere}
+.event-actions{display:flex; align-items:center; gap:4px}
+.events-layout{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:20px; align-items:start}
+.cal-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:14px}
+.cal-head h3{font-size:1.2rem; color:var(--head); text-align:center; flex:1}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px}
+.cal-dow{text-align:center; font-size:.72rem; font-weight:600; color:var(--muted); padding:4px 0}
+.cal-day{aspect-ratio:1; border-radius:12px; border:1px solid transparent; background:var(--soft); color:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:.88rem; font-weight:500; padding:0; transition:background .2s,border-color .2s}
+.cal-day:hover{background:var(--chip-bg); border-color:var(--gold)}
+.cal-day.today{background:var(--accent); color:#fff}
+.cal-day .dots{display:flex; gap:3px; height:6px}
+.dot{display:block; width:6px; height:6px; border-radius:50%}
+.dot.gold{background:var(--gold)}
+.dot.maroon{background:var(--accent)}
+.cal-day.today .dot.maroon{background:#fff}
+.legend{display:flex; gap:16px; margin-top:14px; font-size:.78rem; color:var(--muted); flex-wrap:wrap; align-items:center}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.sub-h{font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:18px 0 6px; font-weight:600}
+.sub-h:first-child{margin-top:0}
+
+/* ---------- Posts and activities ---------- */
+.post{display:flex; gap:14px; padding:18px 0; border-bottom:1px dashed var(--line)}
+.post:last-child{border-bottom:0; padding-bottom:0}
+.post:first-child{padding-top:0}
+.post-main{flex:1; min-width:0}
+.post-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.post-top b{font-weight:600}
+.post-top time{font-size:.76rem; color:var(--muted)}
+.post h4{margin:6px 0 0; font-size:1.05rem; font-weight:600; overflow-wrap:anywhere}
+.post .body{margin-top:4px; white-space:pre-wrap; overflow-wrap:anywhere; color:var(--ink)}
+.post-foot{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:10px}
+.act.past{opacity:.75}
+.act-box{display:flex; align-items:center; gap:8px; font-size:.86rem; cursor:pointer}
+.composer-card textarea{width:100%}
+.composer-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px}
+.counter{font-size:.78rem; color:var(--muted)}
+.clamp{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+
+/* ---------- Messages ---------- */
+.chat{display:grid; grid-template-columns:330px minmax(0,1fr); gap:20px; height:calc(100vh - 200px); height:calc(100dvh - 200px); min-height:480px}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); display:flex; flex-direction:column; min-height:0; min-width:0; overflow:hidden}
+.panel-head{padding:16px; border-bottom:1px solid var(--line)}
+.search{width:100%; padding:10px 14px; border-radius:99px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit}
+.search:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(240,179,35,.35)}
+.people{overflow-y:auto; flex:1; padding:8px}
+.person{display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:10px; border-radius:14px; border:0; background:transparent}
+.person:hover{background:var(--soft)}
+.person.on{background:var(--chip-bg)}
+.person-main{flex:1; min-width:0}
+.person-top{display:flex; align-items:center; gap:6px; justify-content:space-between}
+.person-top b{font-weight:600; font-size:.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.person-top time{font-size:.7rem; color:var(--muted); flex:none}
+.person-last{font-size:.8rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.unread{min-width:22px; height:22px; padding:0 6px; border-radius:99px; background:var(--accent); color:#fff; font-size:.72rem; font-weight:600; display:grid; place-items:center; flex:none}
+.convo-head{display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--line)}
+.convo-head .who{min-width:0}
+.convo-head .who b{display:block; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.back-btn{display:none}
+.chat-log{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:6px}
+.day{align-self:center; margin:10px 0 4px; padding:2px 12px; border-radius:99px; background:var(--soft); color:var(--muted); font-size:.72rem}
+.msg{max-width:min(78%,520px); padding:9px 14px; border-radius:18px; overflow-wrap:anywhere}
+.msg p{white-space:pre-wrap}
+.msg time{display:block; font-size:.66rem; opacity:.7; margin-top:2px; text-align:right}
+.msg.mine{align-self:flex-end; background:var(--mine); color:var(--mine-fg); border-bottom-right-radius:6px}
+.msg.theirs{align-self:flex-start; background:var(--theirs); border-bottom-left-radius:6px}
+.seen{align-self:flex-end; font-size:.7rem; color:var(--muted); margin-right:6px}
+.composer{display:flex; gap:10px; align-items:flex-end; padding:12px 16px; border-top:1px solid var(--line)}
+.composer textarea{flex:1; resize:none; max-height:120px; min-height:42px}
+.placeholder{margin:auto; text-align:center; padding:30px; color:var(--muted)}
+.placeholder b{display:block; font-family:'Playfair Display',Georgia,serif; font-size:1.15rem; color:var(--head); margin-bottom:4px}
+
+/* ---------- Forms, modal, toast ---------- */
+dialog{border:0; padding:0; background:transparent; width:min(92vw,500px); max-width:none; color:var(--ink)}
+dialog::backdrop{background:rgba(30,6,7,.6); backdrop-filter:blur(3px)}
+.modal-card{background:var(--surface); border-radius:22px; padding:26px; box-shadow:0 30px 70px rgba(0,0,0,.4); border-top:6px solid var(--gold)}
+.modal-head{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.modal-head h3{font-size:1.45rem; color:var(--head)}
+.modal-sub{color:var(--muted); font-size:.88rem; margin-top:4px}
+.fields{display:flex; flex-direction:column; gap:14px; margin:18px 0 8px}
+.field span{display:block; font-size:.82rem; font-weight:500; margin-bottom:5px}
+.field em{color:var(--bad); font-style:normal}
+input.in, textarea.in, .field input, .field textarea, .field select, .composer textarea{
+  width:100%; padding:11px 13px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font:inherit; color:var(--ink); resize:vertical;
+}
+.composer textarea{resize:none}
+input.in:focus, textarea.in:focus, .field input:focus, .field textarea:focus, .field select:focus, .composer textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(240,179,35,.35)}
+::placeholder{color:var(--muted); opacity:.8}
+.form-error{min-height:20px; color:var(--bad); font-size:.84rem; margin-top:6px}
+.modal-foot{display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:6px}
+.modal-foot .btn.danger-ghost{margin-right:auto}
+.kv{display:grid; grid-template-columns:auto 1fr; gap:6px 16px; margin:18px 0 12px; font-size:.92rem}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0; font-weight:500; overflow-wrap:anywhere}
+.toast{position:fixed; left:50%; bottom:24px; transform:translate(-50%,30px); opacity:0; pointer-events:none; z-index:100; background:var(--maroon-d); color:#fff; padding:12px 20px; border-radius:14px; font-size:.9rem; font-weight:500; border:1px solid var(--gold); box-shadow:0 12px 30px rgba(0,0,0,.3); transition:opacity .25s,transform .25s; max-width:90vw}
+.toast.show{opacity:1; transform:translate(-50%,0)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1100px){
+  .g3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g2,.events-layout{grid-template-columns:1fr}
+}
+@media (max-width:960px){
+  .sidebar{transform:translateX(-100%)}
+  body.menu-open .sidebar{transform:none; box-shadow:0 0 60px rgba(0,0,0,.45)}
+  body.menu-open .overlay{display:block; position:fixed; inset:0; background:rgba(20,5,5,.5); z-index:30}
+  .main{margin-left:0}
+  .menu-btn{display:inline-grid}
+  .topbar{padding:12px 18px}
+  .net{padding:8px 18px}
+  #view{padding:20px 18px 12px}
+  .footer{padding:14px 18px 24px}
+}
+@media (max-width:860px){
+  .chat{grid-template-columns:1fr; height:calc(100vh - 170px); height:calc(100dvh - 170px)}
+  .chat.has-chat .people-panel{display:none}
+  .chat:not(.has-chat) .convo-panel{display:none}
+  .back-btn{display:inline-grid}
+}
+@media (max-width:700px){
+  .g3{grid-template-columns:1fr}
+  .today-chip{display:none}
+  .profile .pname{display:none}
+  .profile{padding:5px}
+  .hero{padding:24px}
+  .hero h2{font-size:1.6rem}
+  .page-head h2{font-size:1.55rem}
+  .topbar h1{font-size:1.25rem}
+  .auth-card{padding:24px}
+  .card{padding:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none !important; animation:none !important; scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<div class="boot" id="boot"><img class="logo xl" src="/pup-logo.png" alt="Seal of the Polytechnic University of the Philippines"><span>PUP TOGETHER</span></div>
+
+<div class="auth" id="authScreen" hidden>
+  <button type="button" class="icon-btn theme-float" data-action="toggle-theme" data-theme-btn aria-label="Switch theme"></button>
+  <div class="auth-card">
+    <div class="auth-brand"><img class="logo lg" src="/pup-logo.png" alt="Seal of the Polytechnic University of the Philippines"><div><strong>PUP TOGETHER</strong><small>Sama-sama, Iskolar</small></div></div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab on" role="tab" aria-selected="true" data-action="auth-tab" data-tab="login" id="tabLogin">Log in</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-action="auth-tab" data-tab="signup" id="tabSignup">Sign up</button>
+    </div>
+    <div class="auth-notice" id="authNotice" hidden></div>
+
+    <form id="loginForm" data-form="login" novalidate>
+      <div class="fields">
+        <label class="field"><span>Username</span><input id="l-username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20"></label>
+        <label class="field"><span>Password</span><input id="l-password" type="password" autocomplete="current-password" maxlength="72"></label>
+      </div>
+      <p class="form-error" id="loginError" role="alert"></p>
+      <button type="submit" class="btn primary block" id="loginBtn">Log in</button>
+      <p class="hint" id="signupClosed" hidden>Sign-ups are closed. Please ask your admin to create an account for you.</p>
+    </form>
+
+    <form id="signupForm" data-form="signup" novalidate hidden>
+      <div class="fields">
+        <label class="field"><span>Full name</span><input id="s-name" autocomplete="name" maxlength="40" placeholder="e.g., Antoine James Camaganakan"></label>
+        <label class="field" id="studentIdField"><span>Student ID</span><input id="s-studentid" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="2026-00183-TG-0"></label>
+        <label class="field"><span>Username</span><input id="s-username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" placeholder="letters, numbers, _ and ."></label>
+        <label class="field"><span>Password</span><input id="s-password" type="password" autocomplete="new-password" maxlength="72" placeholder="at least 6 characters"></label>
+        <div class="field" id="roleField" hidden><span>I am a</span>
+          <div class="seg"><button type="button" class="on" data-action="role-pick" data-role="student" id="roleStudent" aria-pressed="true">Student</button><button type="button" data-action="role-pick" data-role="professor" id="roleProf" aria-pressed="false">Professor</button></div>
+        </div>
+        <label class="field" id="codeField" hidden><span>Professor code</span><input id="s-code" type="password" autocomplete="off" maxlength="60"><p class="hint">Ask the website owner for this code. Only professors can post activities.</p></label>
+      </div>
+      <p class="form-error" id="signupError" role="alert"></p>
+      <button type="submit" class="btn primary block" id="signupBtn">Create account</button>
+    </form>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <div class="overlay" id="overlay" data-action="close-menu"></div>
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a class="brand" href="#dashboard">
+      <img class="logo" src="/pup-logo.png" alt="PUP seal">
+      <span><strong>PUP TOGETHER</strong><small>Sama-sama, Iskolar</small></span>
+    </a>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-note"><b>Iskolar ng Bayan</b>Study together, grow together, and lift each other up.</div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" type="button" data-action="toggle-menu" aria-label="Open menu" id="menuBtn"></button>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="spacer"></div>
+      <div class="today-chip" id="todayChip"></div>
+      <button class="icon-btn" type="button" data-action="toggle-theme" data-theme-btn aria-label="Switch theme"></button>
+      <button class="profile" type="button" data-action="open-account" aria-label="Your account" id="profileBtn"></button>
+    </header>
+    <div class="net" id="net" role="status" hidden>You are offline. Trying to reconnect...</div>
+    <main id="view" tabindex="-1"></main>
+    <footer class="footer">PUP TOGETHER is a student-made project. It is not an official website of the Polytechnic University of the Philippines.</footer>
+  </div>
+</div>
+
+<dialog id="modal" aria-label="Form"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:24px;font-family:sans-serif">Please turn on JavaScript to use PUP TOGETHER.</p></noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  var TOKEN_KEY = 'pup-token', THEME_KEY = 'pup-theme';
+  var POLL_MS = 5000;
+  var VIEWS = {
+    dashboard: 'Dashboard', activities: 'Activities', board: 'Board', messages: 'Messages',
+    groups: 'Study Groups', tasks: 'Tasks', events: 'Events', accounts: 'Accounts'
+  };
+  var NAV_ICONS = { dashboard: 'home', activities: 'clipboard', board: 'layout', messages: 'chat', groups: 'users', tasks: 'tasks', events: 'calendar', accounts: 'shield' };
+  var WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  var ICON_PATHS = {
+    home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    tasks: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+    clipboard: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>',
+    layout: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
+    chat: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+    bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+    menu: '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
+    plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+    trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+    x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>',
+    left: '<polyline points="15 18 9 12 15 6"/>',
+    right: '<polyline points="9 18 15 12 9 6"/>',
+    sun: '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
+    moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+    send: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+    userplus: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>'
+  };
+  function icon(name, size) {
+    var s = size || 20;
+    return '<svg class="ico" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICON_PATHS[name] || '') + '</svg>';
+  }
+
+  /* ---------- Helpers ---------- */
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function toISO(d) { return String(d.getFullYear()).padStart(4, '0') + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseISO(s) { var p = String(s).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function isValidISO(s) { return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(parseISO(s).getTime()) && toISO(parseISO(s)) === s; }
+  function todayISO() { return toISO(new Date()); }
+  function addDays(n) { var d = new Date(); d.setDate(d.getDate() + n); return toISO(d); }
+  function diffDays(iso) { return Math.round((parseISO(iso) - parseISO(todayISO())) / 86400000); }
+  function fmtDate(iso, opts) {
+    if (!isValidISO(iso)) return '';
+    return parseISO(iso).toLocaleDateString('en-US', opts || { month: 'short', day: 'numeric' });
+  }
+  function fmtTime(t) {
+    if (!/^\d{2}:\d{2}$/.test(t || '')) return '';
+    var p = t.split(':').map(Number);
+    return (p[0] % 12 || 12) + ':' + pad(p[1]) + ' ' + (p[0] >= 12 ? 'PM' : 'AM');
+  }
+  function plural(n, w, pl) { return n + ' ' + (n === 1 ? w : (pl || w + 's')); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function greeting() {
+    var h = new Date().getHours();
+    if (h < 12) return 'Magandang umaga';
+    if (h < 13) return 'Magandang tanghali';
+    if (h < 18) return 'Magandang hapon';
+    return 'Magandang gabi';
+  }
+  function byDue(a, b) { return a.due < b.due ? -1 : a.due > b.due ? 1 : 0; }
+  function byWhen(a, b) {
+    var x = a.date + ' ' + (a.time || ''), y = b.date + ' ' + (b.time || '');
+    return x < y ? -1 : x > y ? 1 : 0;
+  }
+  function ago(ts) {
+    var s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+    if (s < 45) return 'just now';
+    var m = Math.round(s / 60);
+    if (m < 60) return m + ' min ago';
+    var h = Math.round(m / 60);
+    if (h < 24) return h + ' h ago';
+    var d = Math.round(h / 24);
+    if (d < 7) return d + (d === 1 ? ' day ago' : ' days ago');
+    return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function clock(ts) { return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+  function dayLabel(ts) {
+    var iso = toISO(new Date(ts)), diff = diffDays(iso);
+    if (diff === 0) return 'Today';
+    if (diff === -1) return 'Yesterday';
+    return new Date(ts).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+  function firstName(n) { return String(n || '').trim().split(/\s+/)[0] || 'Iskolar'; }
+  function initial(n) { return (String(n || '?').trim().charAt(0) || '?').toUpperCase(); }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+
+  /* ---------- State ---------- */
+  var session = null;                       // { token, user }
+  var local = null;                         // this person's planner (tasks, groups, events, done activities)
+  var shared = { users: [], byId: {}, posts: [], threads: {}, convo: [] };
+  var sigs = { users: '', posts: '', threads: '', convo: '', admin: '' };
+  var admin = { users: [], settings: { signupOpen: true }, loaded: false };
+  var mut = 0;                              // bumps on every local change so stale poll results are ignored
+  var pollTimer = null, polling = false;
+  var now0 = new Date();
+  var ui = {
+    filter: 'all', cal: { y: now0.getFullYear(), m: now0.getMonth() }, drafts: {},
+    chatWith: null, convoLoading: false, stick: false, sending: false, reading: false,
+    posting: false, role: 'student', online: true, busy: false,
+    config: { signupOpen: true, professorSignup: false }
+  };
+
+  var $view = $('view'), $nav = $('nav'), $title = $('pageTitle'), $today = $('todayChip');
+  var $profile = $('profileBtn'), $modal = $('modal'), $toast = $('toast'), $net = $('net');
+
+  /* ---------- Theme ---------- */
+  function currentTheme() { return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    var meta = $('metaTheme');
+    if (meta) meta.setAttribute('content', t === 'dark' ? '#3a0709' : '#7a0f12');
+    var btns = document.querySelectorAll('[data-theme-btn]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].innerHTML = icon(t === 'dark' ? 'sun' : 'moon', 20);
+      btns[i].setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      btns[i].setAttribute('title', t === 'dark' ? 'Light mode' : 'Dark mode');
+    }
+  }
+  function toggleTheme() {
+    var next = currentTheme() === 'dark' ? 'light' : 'dark';
+    lsSet(THEME_KEY, next);
+    applyTheme(next);
+  }
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onScheme = function (e) {
+      var saved = lsGet(THEME_KEY);
+      if (saved !== 'dark' && saved !== 'light') applyTheme(e.matches ? 'dark' : 'light');
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onScheme);
+    else if (mq.addListener) mq.addListener(onScheme);
+  }
+
+  /* ---------- Network ---------- */
+  function api(method, path, body) {
+    var headers = {};
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (session && session.token) headers['Authorization'] = 'Bearer ' + session.token;
+    return fetch(path, { method: method, headers: headers, body: body !== undefined ? JSON.stringify(body) : undefined }).then(
+      function (r) {
+        return r.json().catch(function () { return {}; }).then(function (d) {
+          if (!r.ok) {
+            var err = new Error(d && d.error ? d.error : 'Something went wrong. Please try again.');
+            err.status = r.status;
+            if (r.status === 401 && session && path !== '/api/login' && path !== '/api/register') {
+              forceLogout('Your session ended. Please log in again.');
+            }
+            throw err;
+          }
+          return d;
+        });
+      },
+      function () {
+        var err = new Error('Cannot reach the server. Check your internet and try again.');
+        err.status = 0;
+        throw err;
+      }
+    );
+  }
+  function setOnline(v) {
+    if (ui.online === v) return;
+    ui.online = v;
+    $net.hidden = v;
+  }
+
+  /* ---------- Local planner (tasks, groups, events) ---------- */
+  function localKey() { return 'pup-together-v2:' + session.user.id; }
+  function seedLocal() {
+    return {
+      tasks: [
+        { id: 't1', title: 'Finish the Module 5 slide deck', subject: 'Communication', due: addDays(2), done: false },
+        { id: 't2', title: 'Read Chapter 4 notes', subject: 'Reading', due: addDays(4), done: false }
+      ],
+      groups: [
+        { id: 'g1', name: 'Communication Aids Crew', subject: 'Communication', schedule: 'Wed, 4:00 PM', members: 3, joined: false, desc: 'Practice presentations and give each other feedback on slides.' },
+        { id: 'g2', name: 'Calculus Night Owls', subject: 'Math', schedule: 'Tue and Thu, 7:00 PM', members: 11, joined: false, desc: 'Solve problem sets together and explain the tricky steps.' },
+        { id: 'g3', name: 'Tech and Code Club', subject: 'Programming', schedule: 'Sat, 10:00 AM', members: 18, joined: false, desc: 'Build small projects, share tips, and debug as a team.' }
+      ],
+      events: [
+        { id: 'e1', title: 'Presentation practice session', date: addDays(1), time: '16:00', place: 'Library discussion room', going: false }
+      ],
+      doneActs: {}
+    };
+  }
+  function loadLocal() {
+    try {
+      var raw = lsGet(localKey());
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && Array.isArray(d.tasks) && Array.isArray(d.groups) && Array.isArray(d.events)) {
+          if (!d.doneActs || typeof d.doneActs !== 'object' || Array.isArray(d.doneActs)) d.doneActs = {};
+          return d;
+        }
+      }
+    } catch (e) { /* fall through */ }
+    return seedLocal();
+  }
+  function saveLocal() { lsSet(localKey(), JSON.stringify(local)); }
+
+  /* ---------- Shared data ---------- */
+  function applyUsers(list) {
+    shared.users = list;
+    shared.byId = {};
+    list.forEach(function (u) { shared.byId[u.id] = u; });
+  }
+  function applyPosts(list) { shared.posts = list; }
+  function applyThreads(list) {
+    shared.threads = {};
+    list.forEach(function (t) { shared.threads[t.userId] = t; });
+  }
+  function applyConvo(list) { shared.convo = list; }
+  function applyAdmin(d) { admin.users = d.users; admin.settings = d.settings; admin.loaded = true; }
+  function setSig(key, val, fn) {
+    var s = JSON.stringify(val);
+    if (s === sigs[key]) return false;
+    sigs[key] = s;
+    fn(val);
+    return true;
+  }
+  function me() { return session.user; }
+  function isStaff() { return !!(session && session.user && (session.user.role === 'professor' || session.user.role === 'admin')); }
+  function isAdmin() { return !!(session && session.user && session.user.role === 'admin'); }
+  function roleLabel(r) { return r === 'admin' ? 'Admin' : r === 'professor' ? 'Professor' : 'Student'; }
+  function nameOf(id) { var u = shared.byId[id]; return u ? u.name : 'Former member'; }
+  function totalUnread() {
+    var n = 0;
+    Object.keys(shared.threads).forEach(function (k) { n += shared.threads[k].unread || 0; });
+    return n;
+  }
+  function activities() { return shared.posts.filter(function (p) { return p.kind === 'activity'; }); }
+  function boardPosts() { return shared.posts.filter(function (p) { return p.kind === 'post'; }); }
+  function isOpenAct(a) { return diffDays(a.due) >= 0; }
+  function actDone(a) { return !!local.doneActs[a.id]; }
+  function openActsForMe() { return activities().filter(function (a) { return isOpenAct(a) && (isStaff() || !actDone(a)); }).sort(byDue); }
+
+  /* ---------- Session flow ---------- */
+  function show(el, on) { el.hidden = !on; }
+  function setRole(r) {
+    ui.role = (r === 'professor' && ui.config.professorSignup) ? 'professor' : 'student';
+    $('roleStudent').classList.toggle('on', ui.role === 'student'); $('roleProf').classList.toggle('on', ui.role === 'professor');
+    $('roleStudent').setAttribute('aria-pressed', String(ui.role === 'student')); $('roleProf').setAttribute('aria-pressed', String(ui.role === 'professor'));
+    $('codeField').hidden = ui.role !== 'professor';
+    $('studentIdField').hidden = ui.role !== 'student';
+  }
+  function setAuthTab(tab) {
+    var signup = tab === 'signup' && ui.config.signupOpen;
+    $('loginForm').hidden = signup; $('signupForm').hidden = !signup;
+    $('tabLogin').classList.toggle('on', !signup); $('tabSignup').classList.toggle('on', signup);
+    $('tabLogin').setAttribute('aria-selected', String(!signup)); $('tabSignup').setAttribute('aria-selected', String(signup));
+    $('loginError').textContent = ''; $('signupError').textContent = '';
+  }
+  function applyConfig() {
+    var c = ui.config;
+    $('tabSignup').hidden = !c.signupOpen;
+    $('signupClosed').hidden = c.signupOpen;
+    $('roleField').hidden = !c.professorSignup;
+    if (!c.signupOpen) setAuthTab('login');
+    setRole(ui.role);
+  }
+  function loadConfig() {
+    if (location.protocol === 'file:') return;
+    fetch('/api/config').then(function (r) { return r.json(); }).then(function (c) {
+      ui.config = { signupOpen: c.signupOpen !== false, professorSignup: !!c.professorSignup };
+      applyConfig();
+    }).catch(function () { /* keep the defaults */ });
+  }
+  function showAuth(msg, retry) {
+    loadConfig();
+    stopPolling();
+    show($('boot'), false); show($('app'), false); show($('authScreen'), true);
+    setAuthBusy(false);
+    $('loginError').textContent = ''; $('signupError').textContent = '';
+    notice(msg || '', retry);
+  }
+  function notice(msg, retry) {
+    var n = $('authNotice');
+    if (!msg) { n.hidden = true; n.innerHTML = ''; return; }
+    n.hidden = false;
+    n.innerHTML = esc(msg) + (retry ? '<br><button type="button" class="btn tiny light" data-action="retry-boot">Try again</button>' : '');
+  }
+  function setAuthBusy(b) {
+    $('loginBtn').disabled = b; $('signupBtn').disabled = b;
+    $('loginBtn').textContent = b ? 'Please wait...' : 'Log in';
+    $('signupBtn').textContent = b ? 'Please wait...' : 'Create account';
+  }
+  function forceLogout(msg) {
+    if (!session) return;
+    session = null; local = null;
+    lsDel(TOKEN_KEY);
+    resetShared();
+    closeModal();
+    showAuth(msg);
+  }
+  function resetShared() {
+    shared = { users: [], byId: {}, posts: [], threads: {}, convo: [] };
+    sigs = { users: '', posts: '', threads: '', convo: '', admin: '' };
+    admin = { users: [], settings: { signupOpen: true }, loaded: false };
+    ui.chatWith = null; ui.drafts = {}; ui.filter = 'all'; ui.sending = false; ui.reading = false; ui.posting = false;
+    mut++;
+  }
+  function enterApp() {
+    local = loadLocal();
+    return Promise.all([api('GET', '/api/users'), api('GET', '/api/posts'), api('GET', '/api/threads')]).then(function (r) {
+      sigs.users = JSON.stringify(r[0].users); applyUsers(r[0].users);
+      sigs.posts = JSON.stringify(r[1].posts); applyPosts(r[1].posts);
+      sigs.threads = JSON.stringify(r[2].threads); applyThreads(r[2].threads);
+      show($('boot'), false); show($('authScreen'), false); show($('app'), true);
+      setOnline(true);
+      if (!VIEWS[location.hash.replace('#', '')]) location.hash = '#dashboard';
+      render();
+      if (currentView() === 'accounts') loadAdmin();
+      startPolling();
+    });
+  }
+  function boot() {
+    show($('boot'), true);
+    if (location.protocol === 'file:') {
+      showAuth('This page needs the PUP TOGETHER server. Run "node server.js" in the project folder, then open http://localhost:3000 in your browser.');
+      return;
+    }
+    var tok = lsGet(TOKEN_KEY);
+    if (!tok || !/^[a-f0-9]{64}$/.test(tok)) { lsDel(TOKEN_KEY); showAuth(); return; }
+    session = { token: tok, user: null };
+    api('GET', '/api/me').then(function (d) {
+      session.user = d.user;
+      return enterApp();
+    }).catch(function (e) {
+      if (e.status === 401) return;               // forceLogout already showed the log in screen
+      session = null;
+      showAuth(e.message, true);
+    });
+  }
+  function afterAuth(d) {
+    session = { token: d.token, user: d.user };
+    lsSet(TOKEN_KEY, d.token);
+    return enterApp().then(function () {
+      $('l-password').value = ''; $('s-password').value = ''; $('s-code').value = ''; $('s-studentid').value = '';
+    });
+  }
+  function authFail(form, e) {
+    if (e.status !== 401 || session) { session = null; lsDel(TOKEN_KEY); }
+    setAuthBusy(false);
+    $(form === 'login' ? 'loginError' : 'signupError').textContent = e.message;
+  }
+  function doLogin() {
+    var u = $('l-username').value.trim(), p = $('l-password').value;
+    $('loginError').textContent = '';
+    if (!u || !p) { $('loginError').textContent = 'Enter your username and password.'; return; }
+    setAuthBusy(true);
+    api('POST', '/api/login', { username: u, password: p }).then(afterAuth).catch(function (e) { authFail('login', e); });
+  }
+  function doSignup() {
+    var name = $('s-name').value.trim(), username = $('s-username').value.trim().toLowerCase(), password = $('s-password').value;
+    var studentId = $('s-studentid').value.trim().toUpperCase(), code = $('s-code').value, err = $('signupError');
+    err.textContent = '';
+    if (name.length < 2) { err.textContent = 'Please enter your full name.'; return; }
+    if (ui.role === 'student' && !/^\d{4}-\d{5}-[A-Z]{2}-\d$/.test(studentId)) { err.textContent = 'Enter your student ID like 2026-00183-TG-0.'; return; }
+    if (!/^[a-z0-9_.]{3,20}$/.test(username)) { err.textContent = 'Username must be 3 to 20 letters, numbers, _ or .'; return; }
+    if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+    if (ui.role === 'professor' && !code) { err.textContent = 'Enter the professor code.'; return; }
+    setAuthBusy(true);
+    api('POST', '/api/register', { name: name, username: username, studentId: ui.role === 'student' ? studentId : '', password: password, role: ui.role, code: code })
+      .then(afterAuth).catch(function (e) { authFail('signup', e); });
+  }
+  function logout() {
+    var tok = session && session.token;
+    if (!tok) return;
+    api('POST', '/api/logout', {}).catch(function () { /* ignore */ }).then(function () {
+      session = null; local = null; lsDel(TOKEN_KEY); resetShared(); closeModal();
+      $('l-password').value = '';
+      showAuth('You have been logged out.');
+    });
+  }
+
+  /* ---------- Polling ---------- */
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(poll, POLL_MS);
+  }
+  function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+  function poll() {
+    if (polling || !session || !session.user || document.hidden) return;
+    polling = true;
+    refreshShared().then(function () { setOnline(true); }).catch(function (e) {
+      if (e && e.status === 0) setOnline(false);
+    }).then(function () { polling = false; });
+  }
+  function refreshShared() {
+    var r = mut, cw = ui.chatWith;
+    var jobs = [
+      api('GET', '/api/users'), api('GET', '/api/posts'), api('GET', '/api/threads'),
+      cw && currentView() === 'messages' ? api('GET', '/api/messages/' + cw) : Promise.resolve(null),
+      isAdmin() && currentView() === 'accounts' ? api('GET', '/api/admin/users') : Promise.resolve(null)
+    ];
+    return Promise.all(jobs).then(function (res) {
+      if (r !== mut || !session) return;
+      var changed = false;
+      changed = setSig('users', res[0].users, applyUsers) || changed;
+      changed = setSig('posts', res[1].posts, applyPosts) || changed;
+      changed = setSig('threads', res[2].threads, applyThreads) || changed;
+      if (res[4]) changed = setSig('admin', res[4], applyAdmin) || changed;
+      if (res[3] && cw === ui.chatWith) changed = setSig('convo', res[3].messages, applyConvo) || changed;
+      if (changed) render();
+      if (cw && cw === ui.chatWith) markRead(cw);
+    });
+  }
+
+  /* ---------- Derived data ---------- */
+  function pendingTasks() { return local.tasks.filter(function (t) { return !t.done; }).sort(byDue); }
+  function upcomingEvents() { return local.events.filter(function (e) { return diffDays(e.date) >= 0; }).sort(byWhen); }
+  function currentView() {
+    var h = location.hash.replace('#', '');
+    if (!VIEWS[h]) return 'dashboard';
+    if (h === 'accounts' && !isAdmin()) return 'dashboard';
+    return h;
+  }
+  function dueInfo(t) {
+    if (t.done) return { text: 'Completed', cls: 'ok' };
+    var d = diffDays(t.due);
+    if (d < 0) return { text: plural(-d, 'day') + ' overdue', cls: 'late' };
+    if (d === 0) return { text: 'Due today', cls: 'soon' };
+    if (d === 1) return { text: 'Due tomorrow', cls: 'soon' };
+    if (d <= 7) return { text: 'Due in ' + d + ' days', cls: '' };
+    return { text: 'Due ' + fmtDate(t.due), cls: '' };
+  }
+
+  /* ---------- Small view parts ---------- */
+  function avatar(u) {
+    var prof = !!u && (u.role === 'professor' || u.role === 'admin');
+    return '<span class="av' + (prof ? ' prof' : '') + '" aria-hidden="true">' + esc(initial(u ? u.name : '?')) + '</span>';
+  }
+  function roleChip(role) { return role === 'professor' ? '<span class="chip prof">Professor</span>' : role === 'admin' ? '<span class="chip admin">Admin</span>' : ''; }
+
+  function taskRow(t, compact) {
+    var d = dueInfo(t);
+    return '<li class="task' + (t.done ? ' done' : '') + '">' +
+      '<input type="checkbox" class="check" data-change="toggle-task" data-id="' + esc(t.id) + '" data-focus-key="chk-' + esc(t.id) + '"' + (t.done ? ' checked' : '') + ' aria-label="Mark ' + esc(t.title) + ' as done">' +
+      '<div class="task-main"><p class="task-title">' + esc(t.title) + '</p><div class="task-meta">' +
+      (t.subject ? '<span class="chip">' + esc(t.subject) + '</span>' : '') +
+      '<span class="due ' + d.cls + '">' + icon('clock', 13) + esc(d.text) + '</span></div></div>' +
+      (compact ? '' : '<button type="button" class="icon-btn danger" data-action="delete-task" data-id="' + esc(t.id) + '" aria-label="Delete ' + esc(t.title) + '">' + icon('trash', 17) + '</button>') +
+      '</li>';
+  }
+
+  function eventRow(e, full) {
+    var past = diffDays(e.date) < 0;
+    var d = parseISO(e.date);
+    var meta = [fmtTime(e.time), e.place].filter(Boolean).map(esc).join(' &middot; ');
+    return '<li class="event' + (past ? ' past' : '') + '">' +
+      '<div class="date-badge"><span>' + esc(d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()) + '</span><b>' + d.getDate() + '</b></div>' +
+      '<div class="event-main"><p class="event-title">' + esc(e.title) + '</p><p class="event-meta">' + (meta || esc(fmtDate(e.date, { weekday: 'long' }))) + '</p></div>' +
+      (full ? '<div class="event-actions">' +
+        (past ? '' : '<button type="button" class="btn tiny ' + (e.going ? 'primary' : 'light') + '" data-action="rsvp" data-id="' + esc(e.id) + '" data-focus-key="rsvp-' + esc(e.id) + '">' + (e.going ? icon('check', 14) + 'Going' : 'RSVP') + '</button>') +
+        '<button type="button" class="icon-btn danger" data-action="delete-event" data-id="' + esc(e.id) + '" aria-label="Delete ' + esc(e.title) + '">' + icon('trash', 17) + '</button></div>'
+        : (e.going ? '<span class="chip">Going</span>' : '')) +
+      '</li>';
+  }
+
+  function groupCard(g) {
+    var count = (Number(g.members) || 0) + (g.joined ? 1 : 0);
+    return '<article class="card group"><div><span class="chip">' + esc(g.subject || 'General') + '</span></div>' +
+      '<h3>' + esc(g.name) + '</h3>' +
+      (g.desc ? '<p class="desc">' + esc(g.desc) + '</p>' : '') +
+      '<div class="meta">' +
+      (g.schedule ? '<span>' + icon('clock', 16) + esc(g.schedule) + '</span>' : '') +
+      '<span>' + icon('users', 16) + plural(count, 'member') + '</span></div>' +
+      '<div class="foot"><button type="button" class="btn ' + (g.joined ? 'light' : 'primary') + '" data-action="toggle-group" data-id="' + esc(g.id) + '" data-focus-key="grp-' + esc(g.id) + '">' + (g.joined ? 'Leave group' : 'Join group') + '</button>' +
+      '<button type="button" class="icon-btn danger" data-action="delete-group" data-id="' + esc(g.id) + '" aria-label="Delete ' + esc(g.name) + '">' + icon('trash', 17) + '</button></div></article>';
+  }
+
+  function canDelete(p) { return p.authorId === me().id || isStaff(); }
+  function deleteBtn(p) {
+    return canDelete(p) ? '<button type="button" class="icon-btn danger" data-action="delete-post" data-id="' + esc(p.id) + '" aria-label="Delete this post">' + icon('trash', 17) + '</button>' : '';
+  }
+  function authorOf(p) { return shared.byId[p.authorId] || { name: p.authorName, role: p.authorRole }; }
+
+  function postCard(p) {
+    var a = authorOf(p);
+    return '<li class="post">' + avatar(a) + '<div class="post-main"><div class="post-top"><b>' + esc(a.name) + '</b>' + roleChip(a.role) + '<time>' + esc(ago(p.at)) + '</time></div>' +
+      (p.title ? '<h4>' + esc(p.title) + '</h4>' : '') + '<p class="body">' + esc(p.body) + '</p></div>' + deleteBtn(p) + '</li>';
+  }
+
+  function actDueInfo(a) {
+    var d = diffDays(a.due);
+    if (d < 0) return { text: 'Past due (' + fmtDate(a.due) + ')', cls: 'late' };
+    if (d === 0) return { text: 'Due today', cls: 'soon' };
+    if (d === 1) return { text: 'Due tomorrow', cls: 'soon' };
+    if (d <= 7) return { text: 'Due in ' + d + ' days (' + fmtDate(a.due) + ')', cls: '' };
+    return { text: 'Due ' + fmtDate(a.due, { month: 'long', day: 'numeric', year: 'numeric' }), cls: '' };
+  }
+  function activityCard(a) {
+    var author = authorOf(a), d = actDueInfo(a), done = actDone(a), past = !isOpenAct(a);
+    return '<li class="post act' + (past ? ' past' : '') + '">' + avatar(author) + '<div class="post-main">' +
+      '<div class="post-top"><b>' + esc(author.name) + '</b>' + roleChip(author.role) + '<time>' + esc(ago(a.at)) + '</time></div>' +
+      '<h4>' + esc(a.title) + '</h4>' + (a.body ? '<p class="body">' + esc(a.body) + '</p>' : '') +
+      '<div class="post-foot"><span class="due ' + d.cls + '">' + icon('clock', 14) + esc(d.text) + '</span>' +
+      (isStaff() ? '' : '<label class="act-box"><input type="checkbox" class="check" data-change="toggle-act" data-id="' + esc(a.id) + '" data-focus-key="act-' + esc(a.id) + '"' + (done ? ' checked' : '') + '> ' + (done ? 'Done' : 'Mark as done') + '</label>') +
+      '</div></div>' + deleteBtn(a) + '</li>';
+  }
+  function actRow(a) {
+    var d = parseISO(a.due), info = actDueInfo(a);
+    return '<li class="event"><div class="date-badge"><span>' + esc(d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()) + '</span><b>' + d.getDate() + '</b></div>' +
+      '<div class="event-main"><p class="event-title">' + esc(a.title) + '</p><p class="event-meta">By ' + esc(authorOf(a).name) + ' &middot; ' + esc(info.text) + '</p></div></li>';
+  }
+
+  /* ---------- Views ---------- */
+  function statCard(ic, num, label, sub, href) {
+    var inner = '<div class="bubble">' + icon(ic, 22) + '</div><div><div class="num">' + num + '</div><div class="lbl">' + esc(label) + '</div><div class="sub">' + esc(sub) + '</div></div>';
+    return href ? '<a class="card stat" href="' + href + '">' + inner + '</a>' : '<div class="card stat">' + inner + '</div>';
+  }
+
+  function dashboardView() {
+    var pending = pendingTasks();
+    var done = local.tasks.length - pending.length;
+    var overdue = pending.filter(function (t) { return diffDays(t.due) < 0; }).length;
+    var openActs = openActsForMe();
+    var upcoming = upcomingEvents();
+    var unread = totalUnread();
+    var pct = local.tasks.length ? Math.round(done / local.tasks.length * 100) : 0;
+    var C = 263.89;
+
+    var parts = [];
+    if (openActs.length) parts.push(isStaff() ? plural(openActs.length, 'open activity', 'open activities') + ' posted.' : plural(openActs.length, 'activity', 'activities') + ' to do. Next due ' + esc(fmtDate(openActs[0].due)) + '.');
+    else parts.push(isStaff() ? 'No open activities yet. Post one for your class.' : 'No activities to do right now.');
+    if (unread) parts.push(plural(unread, 'new message') + '.');
+    if (overdue) parts.push(plural(overdue, 'task') + ' overdue.');
+
+    var counts = [], i, max = 1;
+    for (i = 0; i < 7; i++) {
+      var iso = addDays(i), n = 0;
+      pending.forEach(function (t) { if (t.due === iso) n++; });
+      openActs.forEach(function (a) { if (a.due === iso) n++; });
+      counts.push(n);
+      if (n > max) max = n;
+    }
+    var bars = '';
+    for (i = 0; i < 7; i++) {
+      var h = counts[i] ? Math.max(14, Math.round(counts[i] / max * 100)) : 4;
+      bars += '<div class="bar"><b>' + (counts[i] || '') + '</b><i class="' + (counts[i] ? '' : 'zero') + '" style="height:' + h + '%"></i><span>' + (i === 0 ? 'Today' : WEEKDAYS[parseISO(addDays(i)).getDay()]) + '</span></div>';
+    }
+
+    var actList = openActs.slice(0, 4).map(actRow).join('');
+    var taskList = pending.slice(0, 4).map(function (t) { return taskRow(t, true); }).join('');
+    var eventList = upcoming.slice(0, 3).map(function (e) { return eventRow(e, false); }).join('');
+    var latest = boardPosts().slice(0, 3).map(function (p) {
+      var a = authorOf(p);
+      return '<li class="post">' + avatar(a) + '<div class="post-main"><div class="post-top"><b>' + esc(a.name) + '</b>' + roleChip(a.role) + '<time>' + esc(ago(p.at)) + '</time></div><p class="body clamp">' + esc(p.body) + '</p></div></li>';
+    }).join('');
+
+    var actions = isStaff()
+      ? '<button type="button" class="btn gold" data-action="new-activity">' + icon('plus', 18) + 'Post an activity</button><a class="btn ghost" href="#messages">Open messages</a>' + (isAdmin() ? '<a class="btn ghost" href="#accounts">Manage accounts</a>' : '')
+      : '<a class="btn gold" href="#activities">View activities</a><a class="btn ghost" href="#messages">Message a classmate</a>';
+
+    return '' +
+      '<section class="hero"><div><p class="eyebrow">' + esc(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })) + '</p>' +
+      '<h2>' + greeting() + ', ' + esc(firstName(me().name)) + '!</h2><p class="sum">' + parts.join(' ') + '</p>' +
+      '<div class="hero-actions">' + actions + '</div></div></section>' +
+
+      '<section class="stats">' +
+      statCard('clipboard', openActs.length, isStaff() ? 'Open activities' : 'Activities to do', openActs.length ? 'Next due ' + fmtDate(openActs[0].due) : 'Nothing due', '#activities') +
+      statCard('tasks', pending.length, 'Pending tasks', overdue ? overdue + ' overdue' : 'All on track', '#tasks') +
+      statCard('chat', unread, 'Unread messages', unread ? 'Tap to read' : 'You are caught up', '#messages') +
+      statCard('calendar', upcoming.length, 'Upcoming events', 'On your calendar', '#events') +
+      '</section>' +
+
+      '<div class="g2">' +
+      '<section class="card"><div class="card-head"><h3>Activities from professors</h3><a href="#activities">View all</a></div>' +
+      (actList ? '<ul class="list">' + actList + '</ul>' : '<div class="empty"><b>No open activities</b>' + (isStaff() ? 'Post one from the Activities page.' : 'Your professors have not posted anything due yet.') + '</div>') + '</section>' +
+      '<section class="card"><div class="card-head"><h3>Task progress</h3></div><div class="ring-wrap">' +
+      '<svg class="ring" viewBox="0 0 100 100" role="img" aria-label="' + pct + ' percent of tasks completed"><circle class="ring-bg" cx="50" cy="50" r="42"/>' +
+      '<circle class="ring-fg" cx="50" cy="50" r="42" stroke-dasharray="' + C + '" stroke-dashoffset="' + (C * (1 - pct / 100)).toFixed(2) + '" transform="rotate(-90 50 50)"/>' +
+      '<text class="ring-text" x="50" y="56" text-anchor="middle">' + pct + '%</text></svg>' +
+      '<p>' + done + ' of ' + plural(local.tasks.length, 'task') + ' completed</p></div></section>' +
+      '</div>' +
+
+      '<div class="g3">' +
+      '<section class="card"><div class="card-head"><h3>Tasks to do next</h3><a href="#tasks">View all</a></div>' +
+      (taskList ? '<ul class="list">' + taskList + '</ul>' : '<div class="empty"><b>All caught up</b>Add a task to plan your next step.</div>') + '</section>' +
+      '<section class="card"><div class="card-head"><h3>Next 7 days</h3></div><div class="bars">' + bars + '</div></section>' +
+      '<section class="card"><div class="card-head"><h3>Upcoming events</h3><a href="#events">Calendar</a></div>' +
+      (eventList ? '<ul class="list">' + eventList + '</ul>' : '<div class="empty"><b>No events yet</b>Add one from the calendar.</div>') + '</section>' +
+      '</div>' +
+
+      '<section class="card"><div class="card-head"><h3>Latest on the board</h3><a href="#board">Open board</a></div>' +
+      (latest ? '<ul class="list">' + latest + '</ul>' : '<div class="empty"><b>No posts yet</b>Be the first to share something with the class.</div>') + '</section>';
+  }
+
+  function activitiesView() {
+    var all = activities();
+    var open = all.filter(isOpenAct).sort(byDue);
+    var past = all.filter(function (a) { return !isOpenAct(a); }).sort(function (a, b) { return byDue(b, a); });
+    return '<div class="page-head"><div><h2>Activities</h2><p>' + (isStaff() ? 'Post activities for your class. Everyone sees them right away.' : 'Activities posted by your professors. Tick them off as you finish.') + '</p></div>' +
+      (isStaff() ? '<button type="button" class="btn primary" data-action="new-activity">' + icon('plus', 18) + 'Post activity</button>' : '') + '</div>' +
+      '<section class="card">' +
+      (open.length ? '<p class="sub-h">Open</p><ul class="list">' + open.map(activityCard).join('') + '</ul>' : '<div class="empty"><b>No open activities</b>' + (isStaff() ? 'Tap "Post activity" to add the first one.' : 'Nothing is due right now.') + '</div>') +
+      (past.length ? '<p class="sub-h">Past due</p><ul class="list">' + past.map(activityCard).join('') + '</ul>' : '') +
+      '</section>';
+  }
+
+  function boardView() {
+    var posts = boardPosts();
+    var draft = ui.drafts.board || '';
+    return '<div class="page-head"><div><h2>Board</h2><p>Share news, questions, and tips with the whole class.</p></div></div>' +
+      '<div class="stack">' +
+      '<form class="card composer-card" data-form="post" novalidate>' +
+      '<textarea class="in" rows="3" maxlength="1000" data-draft="board" data-focus-key="board-input" aria-label="Write a post" placeholder="What would you like to share with the class?"></textarea>' +
+      '<div class="composer-foot"><span class="counter" id="cnt-board">' + draft.length + '/1000</span><button type="submit" class="btn primary">' + icon('send', 16) + 'Post</button></div></form>' +
+      '<section class="card">' +
+      (posts.length ? '<ul class="list">' + posts.map(postCard).join('') + '</ul>' : '<div class="empty"><b>No posts yet</b>Write the first one above.</div>') +
+      '</section></div>';
+  }
+
+  function personRow(u) {
+    var t = shared.threads[u.id];
+    return '<button type="button" class="person' + (ui.chatWith === u.id ? ' on' : '') + '" data-action="open-chat" data-id="' + esc(u.id) + '" data-focus-key="person-' + esc(u.id) + '">' +
+      avatar(u) + '<span class="person-main"><span class="person-top"><b>' + esc(u.name) + '</b>' + (t && t.last ? '<time>' + esc(ago(t.last.at)) + '</time>' : '') + '</span>' +
+      '<span class="person-last">' + (t && t.last ? (t.last.from === me().id ? 'You: ' : '') + esc(t.last.text) : roleLabel(u.role) + ' &middot; @' + esc(u.username)) + '</span></span>' +
+      (t && t.unread ? '<span class="unread" aria-label="' + t.unread + ' unread">' + t.unread + '</span>' : '') + '</button>';
+  }
+
+  function messagesView() {
+    var meId = me().id;
+    var q = (ui.drafts.people || '').trim().toLowerCase();
+    var others = shared.users.filter(function (u) { return u.id !== meId; });
+    var list = others.filter(function (u) { return !q || u.name.toLowerCase().indexOf(q) > -1 || u.username.indexOf(q) > -1; });
+    list.sort(function (a, b) {
+      var ta = shared.threads[a.id] && shared.threads[a.id].last ? shared.threads[a.id].last.at : 0;
+      var tb = shared.threads[b.id] && shared.threads[b.id].last ? shared.threads[b.id].last.at : 0;
+      if (ta !== tb) return tb - ta;
+      return a.name.localeCompare(b.name);
+    });
+    var peopleHtml = list.length ? list.map(personRow).join('') :
+      '<div class="empty"><b>' + (others.length ? 'No one found' : 'No one else yet') + '</b>' + (others.length ? 'Try another name.' : 'Share this website with your classmates so they can sign up.') + '</div>';
+
+    var other = ui.chatWith ? shared.byId[ui.chatWith] : null;
+    var convo;
+    if (!other) {
+      convo = '<div class="placeholder"><b>Your messages</b>Pick a classmate or professor on the left to start chatting.</div>';
+    } else {
+      var log = '', lastDay = '', i;
+      for (i = 0; i < shared.convo.length; i++) {
+        var m = shared.convo[i], dl = dayLabel(m.at);
+        if (dl !== lastDay) { log += '<div class="day">' + esc(dl) + '</div>'; lastDay = dl; }
+        log += '<div class="msg ' + (m.from === meId ? 'mine' : 'theirs') + '"><p>' + esc(m.text) + '</p><time>' + esc(clock(m.at)) + '</time></div>';
+      }
+      var lastMsg = shared.convo[shared.convo.length - 1];
+      if (lastMsg && lastMsg.from === meId && lastMsg.read) log += '<div class="seen">Seen</div>';
+      if (!shared.convo.length) log = ui.convoLoading ? '<div class="placeholder">Loading...</div>' : '<div class="placeholder"><b>Say hello</b>Send the first message to ' + esc(firstName(other.name)) + '.</div>';
+      convo = '<div class="convo-head"><button type="button" class="icon-btn back-btn" data-action="chat-back" aria-label="Back to people">' + icon('left', 20) + '</button>' + avatar(other) +
+        '<div class="who"><b>' + esc(other.name) + '</b>' + (other.role === 'student' ? '<span class="chip">Student</span>' : roleChip(other.role)) + '</div></div>' +
+        '<div class="chat-log" id="chatLog" aria-live="polite">' + log + '</div>' +
+        '<form class="composer" data-form="chat" novalidate><textarea rows="1" maxlength="1000" data-draft="chat-' + esc(other.id) + '" data-focus-key="chat-input" data-enter-submit="1" aria-label="Write a message" placeholder="Write a message..."></textarea>' +
+        '<button type="submit" class="btn primary" aria-label="Send message"' + (ui.sending ? ' disabled' : '') + '>' + icon('send', 18) + '</button></form>';
+    }
+
+    return '<div class="page-head"><div><h2>Messages</h2><p>Chat privately with your classmates and professors.</p></div></div>' +
+      '<div class="chat' + (other ? ' has-chat' : '') + '">' +
+      '<section class="panel people-panel"><div class="panel-head"><input type="search" class="search" data-draft="people" data-focus-key="people-search" aria-label="Search people" placeholder="Search people..." autocomplete="off"></div><div class="people">' + peopleHtml + '</div></section>' +
+      '<section class="panel convo-panel">' + convo + '</section></div>';
+  }
+
+  function tasksView() {
+    var all = local.tasks.slice().sort(function (a, b) {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      return byDue(a, b);
+    });
+    var nPending = all.filter(function (t) { return !t.done; }).length;
+    var counts = { all: all.length, pending: nPending, done: all.length - nPending };
+    var shown = all.filter(function (t) { return ui.filter === 'all' || (ui.filter === 'pending' ? !t.done : t.done); });
+    var chips = ['all', 'pending', 'done'].map(function (f) {
+      return '<button type="button" class="filter' + (ui.filter === f ? ' on' : '') + '" data-action="filter" data-filter="' + f + '" aria-pressed="' + (ui.filter === f) + '">' +
+        f.charAt(0).toUpperCase() + f.slice(1) + ' (' + counts[f] + ')</button>';
+    }).join('');
+    return '<div class="page-head"><div><h2>Tasks</h2><p>Your personal to-do list. Only you can see it.</p></div>' +
+      '<button type="button" class="btn primary" data-action="new-task">' + icon('plus', 18) + 'New task</button></div>' +
+      '<div class="filters">' + chips + '</div>' +
+      '<section class="card">' +
+      (shown.length ? '<ul class="list">' + shown.map(function (t) { return taskRow(t, false); }).join('') + '</ul>'
+        : '<div class="empty"><b>' + (all.length ? 'Nothing here' : 'No tasks yet') + '</b>' + (all.length ? 'Try another filter.' : 'Add your first task to get started.') + '</div>') +
+      '</section>';
+  }
+
+  function groupsView() {
+    var groups = local.groups.slice().sort(function (a, b) {
+      if (a.joined !== b.joined) return a.joined ? -1 : 1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+    return '<div class="page-head"><div><h2>Study Groups</h2><p>Plan study groups with your classmates. This list is only on your device.</p></div>' +
+      '<button type="button" class="btn primary" data-action="new-group">' + icon('plus', 18) + 'New group</button></div>' +
+      (groups.length ? '<div class="cards">' + groups.map(groupCard).join('') + '</div>'
+        : '<section class="card"><div class="empty"><b>No study groups yet</b>Create the first one.</div></section>');
+  }
+
+  function calendarHTML() {
+    var y = ui.cal.y, m = ui.cal.m;
+    var start = new Date(y, m, 1).getDay();
+    var dim = new Date(y, m + 1, 0).getDate();
+    var evDates = {}, dueDates = {};
+    local.events.forEach(function (e) { evDates[e.date] = true; });
+    local.tasks.forEach(function (t) { if (!t.done) dueDates[t.due] = true; });
+    activities().forEach(function (a) { if (isOpenAct(a) && (isStaff() || !actDone(a))) dueDates[a.due] = true; });
+    var today = todayISO();
+    var cells = WEEKDAYS.map(function (d) { return '<div class="cal-dow">' + d.charAt(0) + '</div>'; }).join('');
+    var i;
+    for (i = 0; i < start; i++) cells += '<span></span>';
+    for (i = 1; i <= dim; i++) {
+      var iso = String(y).padStart(4, '0') + '-' + pad(m + 1) + '-' + pad(i);
+      var label = parseISO(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      cells += '<button type="button" class="cal-day' + (iso === today ? ' today' : '') + '" data-action="new-event" data-date="' + iso + '" aria-label="Add an event on ' + esc(label) + '">' +
+        '<span>' + i + '</span><i class="dots">' + (evDates[iso] ? '<b class="dot gold"></b>' : '') + (dueDates[iso] ? '<b class="dot maroon"></b>' : '') + '</i></button>';
+    }
+    var title = new Date(y, m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    return '<div class="cal-head"><button type="button" class="icon-btn" data-action="cal-prev" aria-label="Previous month">' + icon('left', 20) + '</button>' +
+      '<h3>' + esc(title) + '</h3>' +
+      '<button type="button" class="icon-btn" data-action="cal-next" aria-label="Next month">' + icon('right', 20) + '</button></div>' +
+      '<div class="cal-grid">' + cells + '</div>' +
+      '<div class="legend"><span><b class="dot gold"></b>Event</span><span><b class="dot maroon"></b>Something due</span>' +
+      '<button type="button" class="btn tiny light" data-action="cal-today" style="margin-left:auto">Today</button></div>';
+  }
+
+  function eventsView() {
+    var sorted = local.events.slice().sort(byWhen);
+    var up = sorted.filter(function (e) { return diffDays(e.date) >= 0; });
+    var past = sorted.filter(function (e) { return diffDays(e.date) < 0; }).reverse().slice(0, 5);
+    return '<div class="page-head"><div><h2>Events</h2><p>Tap any day on the calendar to add an event. Activity due dates show up too.</p></div>' +
+      '<button type="button" class="btn primary" data-action="new-event" data-date="' + todayISO() + '">' + icon('plus', 18) + 'New event</button></div>' +
+      '<div class="events-layout"><section class="card">' + calendarHTML() + '</section>' +
+      '<section class="card"><p class="sub-h">Upcoming</p>' +
+      (up.length ? '<ul class="list">' + up.map(function (e) { return eventRow(e, true); }).join('') + '</ul>' : '<div class="empty"><b>No upcoming events</b>Pick a day on the calendar.</div>') +
+      (past.length ? '<p class="sub-h">Recently passed</p><ul class="list">' + past.map(function (e) { return eventRow(e, true); }).join('') + '</ul>' : '') +
+      '</section></div>';
+  }
+
+  /* ---------- Accounts (admin) ---------- */
+  function accountsView() {
+    var head = '<div class="page-head"><div><h2>Accounts</h2><p>Add, edit, or remove the people who can use PUP TOGETHER.</p></div>' +
+      '<button type="button" class="btn primary" data-action="new-account">' + icon('userplus', 18) + 'Add account</button></div>';
+    if (!isAdmin()) return '<section class="card"><div class="empty"><b>Admins only</b>You do not have access to this page.</div></section>';
+    if (!admin.loaded) return head + '<section class="card"><div class="empty">Loading accounts...</div></section>';
+    var order = { admin: 0, professor: 1, student: 2 };
+    var users = admin.users.slice().sort(function (a, b) {
+      if (order[a.role] !== order[b.role]) return order[a.role] - order[b.role];
+      return a.name.localeCompare(b.name);
+    });
+    var counts = { admin: 0, professor: 0, student: 0 };
+    users.forEach(function (u) { counts[u.role] = (counts[u.role] || 0) + 1; });
+    var q = (ui.drafts.accounts || '').trim().toLowerCase();
+    var list = users.filter(function (u) {
+      return !q || u.name.toLowerCase().indexOf(q) > -1 || u.username.indexOf(q) > -1 || (u.studentId || '').toLowerCase().indexOf(q) > -1;
+    });
+    var rows = list.map(function (u) {
+      var self = u.id === me().id;
+      return '<li class="acc">' + avatar(u) + '<div class="acc-main"><p class="acc-name">' + esc(u.name) + roleChip(u.role) + (u.role === 'student' ? '<span class="chip">Student</span>' : '') + (self ? '<span class="chip">You</span>' : '') + '</p>' +
+        '<p class="acc-meta">@' + esc(u.username) + ' &middot; ID: ' + esc(u.studentId || 'none') + (u.created ? ' &middot; Joined ' + esc(new Date(u.created).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })) : '') + '</p></div>' +
+        '<div class="acc-actions"><button type="button" class="icon-btn" data-action="edit-account" data-id="' + esc(u.id) + '" aria-label="Edit ' + esc(u.name) + '">' + icon('edit', 18) + '</button>' +
+        (self ? '' : '<button type="button" class="icon-btn danger" data-action="delete-account" data-id="' + esc(u.id) + '" aria-label="Remove ' + esc(u.name) + '">' + icon('trash', 18) + '</button>') + '</div></li>';
+    }).join('');
+    return head +
+      '<section class="stats">' + statCard('users', counts.student || 0, 'Students', 'with accounts') + statCard('clipboard', counts.professor || 0, 'Professors', 'with accounts') + statCard('shield', counts.admin || 0, 'Admins', 'full access') + '</section>' +
+      '<div class="g2"><section class="card"><div class="card-head"><h3>How people get an account</h3></div>' +
+      '<ol class="steps"><li>Tap <b>Add account</b> and fill in their name, username, student ID, and a first password.</li><li>Send them the website link, their username, and that password.</li><li>They log in, then open their profile and tap <b>Change password</b>.</li></ol>' +
+      '<p class="hint" style="margin-top:10px">Or let students sign up by themselves with their student ID. Use the Sign-ups switch.</p></section>' +
+      '<section class="card"><div class="card-head"><h3>Sign-ups</h3></div><label class="switch"><input type="checkbox" data-change="toggle-signup" data-focus-key="signup-switch"' + (admin.settings.signupOpen ? ' checked' : '') + '><span class="track" aria-hidden="true"></span>' +
+      '<span><b>Open sign-ups</b><br><span class="hint">' + (admin.settings.signupOpen ? 'Students can create their own account.' : 'Invite-only. Only you can add accounts.') + '</span></span></label></section></div>' +
+      '<section class="card"><div class="card-head"><h3>All accounts (' + users.length + ')</h3></div>' +
+      '<input type="search" class="search" style="margin-bottom:16px" data-draft="accounts" data-focus-key="accounts-search" aria-label="Search accounts" placeholder="Search name, username, or ID..." autocomplete="off">' +
+      (rows ? '<ul class="list">' + rows + '</ul>' : '<div class="empty"><b>No one found</b>Try another search.</div>') + '</section>';
+  }
+  function loadAdmin() {
+    if (!isAdmin()) return Promise.resolve();
+    var r = mut;
+    return api('GET', '/api/admin/users').then(function (d) {
+      if (r !== mut) return;
+      if (setSig('admin', d, applyAdmin)) render();
+    }).catch(function (e) { toast(e.message); });
+  }
+  function reloadAfterAdmin() {
+    mut++;
+    return Promise.all([api('GET', '/api/admin/users'), api('GET', '/api/users'), api('GET', '/api/threads')]).then(function (r) {
+      sigs.admin = JSON.stringify(r[0]); applyAdmin(r[0]);
+      sigs.users = JSON.stringify(r[1].users); applyUsers(r[1].users);
+      sigs.threads = JSON.stringify(r[2].threads); applyThreads(r[2].threads);
+      if (ui.chatWith && !shared.byId[ui.chatWith]) { ui.chatWith = null; shared.convo = []; sigs.convo = ''; }
+      render();
+    });
+  }
+  function setSignup(open) {
+    api('PUT', '/api/admin/settings', { signupOpen: open }).then(function (d) {
+      mut++; admin.settings = d.settings; sigs.admin = ''; render();
+      toast(open ? 'Sign-ups are open' : 'Sign-ups are closed');
+    }).catch(function (e) { toast(e.message); render(); });
+  }
+
+  /* ---------- Render ---------- */
+  function render() {
+    if (!session || !session.user || !local) return;
+    var view = currentView();
+    var active = document.activeElement, focusKey = null, selS = null, selE = null;
+    if (active && active !== document.body && $view.contains(active)) {
+      focusKey = active.getAttribute('data-focus-key');
+      if (active.hasAttribute('data-draft')) { selS = active.selectionStart; selE = active.selectionEnd; }
+    }
+    var oldLog = $('chatLog'), wasBottom = false, prevTop = 0;
+    if (oldLog) { wasBottom = oldLog.scrollHeight - oldLog.scrollTop - oldLog.clientHeight < 48; prevTop = oldLog.scrollTop; }
+
+    var builders = { dashboard: dashboardView, activities: activitiesView, board: boardView, messages: messagesView, groups: groupsView, tasks: tasksView, events: eventsView, accounts: accountsView };
+    $view.innerHTML = builders[view]();
+
+    var drafts = $view.querySelectorAll('[data-draft]');
+    for (var i = 0; i < drafts.length; i++) {
+      var dv = ui.drafts[drafts[i].getAttribute('data-draft')];
+      if (dv !== undefined) drafts[i].value = dv;
+    }
+    var newLog = $('chatLog');
+    if (newLog) newLog.scrollTop = (ui.stick || wasBottom || !oldLog) ? newLog.scrollHeight : prevTop;
+    ui.stick = false;
+
+    if (focusKey) {
+      var keyed = $view.querySelectorAll('[data-focus-key]');
+      for (var k = 0; k < keyed.length; k++) {
+        if (keyed[k].getAttribute('data-focus-key') === focusKey) {
+          try { keyed[k].focus({ preventScroll: true }); } catch (e) { keyed[k].focus(); }
+          if (selS !== null && keyed[k].setSelectionRange) { try { keyed[k].setSelectionRange(selS, selE); } catch (e2) { /* ignore */ } }
+          break;
+        }
+      }
+    }
+
+    $title.textContent = VIEWS[view];
+    document.title = VIEWS[view] + ' | PUP TOGETHER';
+    $today.innerHTML = icon('calendar', 16) + esc(new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }));
+    var u = me();
+    $profile.innerHTML = '<span class="av' + (u.role !== 'student' ? ' prof' : '') + '" aria-hidden="true">' + esc(initial(u.name)) + '</span><span class="pname">' + esc(u.name) + '</span>';
+
+    var pendingCount = local.tasks.filter(function (t) { return !t.done; }).length;
+    var actCount = openActsForMe().length;
+    var unread = totalUnread();
+    $nav.innerHTML = Object.keys(VIEWS).filter(function (key) { return key !== 'accounts' || isAdmin(); }).map(function (key) {
+      var badge = '';
+      if (key === 'tasks' && pendingCount) badge = '<span class="count">' + pendingCount + '</span>';
+      if (key === 'activities' && actCount) badge = '<span class="count">' + actCount + '</span>';
+      if (key === 'messages' && unread) badge = '<span class="count hot">' + unread + '</span>';
+      return '<a href="#' + key + '" class="' + (key === view ? 'active' : '') + '"' + (key === view ? ' aria-current="page"' : '') + '>' +
+        icon(NAV_ICONS[key], 20) + '<span>' + esc(VIEWS[key]) + '</span>' + badge + '</a>';
+    }).join('');
+  }
+
+  /* ---------- Toast, menu, modal ---------- */
+  var toastTimer = null;
+  function toast(msg) {
+    $toast.textContent = msg;
+    $toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $toast.classList.remove('show'); }, 2600);
+  }
+  function setMenu(open) {
+    document.body.classList.toggle('menu-open', open);
+    $('menuBtn').setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  function fieldHTML(f) {
+    var id = 'f-' + f.name;
+    var common = ' id="' + id + '" name="' + f.name + '"' + (f.max ? ' maxlength="' + f.max + '"' : '') +
+      (f.placeholder ? ' placeholder="' + esc(f.placeholder) + '"' : '') + (f.autofocus ? ' autofocus' : '');
+    var input;
+    if (f.type === 'textarea') {
+      input = '<textarea rows="3"' + common + '>' + esc(f.value || '') + '</textarea>';
+    } else if (f.type === 'select') {
+      input = '<select' + common + '>' + f.options.map(function (o) {
+        return '<option value="' + esc(o.value) + '"' + (o.value === f.value ? ' selected' : '') + '>' + esc(o.label) + '</option>';
+      }).join('') + '</select>';
+    } else {
+      input = '<input type="' + (f.type || 'text') + '" value="' + esc(f.value || '') + '"' + common +
+        (f.type === 'password' ? ' autocomplete="' + (f.ac || 'new-password') + '"' : '') + '>';
+    }
+    return '<label class="field" for="' + id + '"><span>' + esc(f.label) + (f.required ? ' <em>*</em>' : '') + '</span>' + input + '</label>';
+  }
+  function openDialog() {
+    if ($modal.open) return;
+    if (typeof $modal.showModal === 'function') $modal.showModal();
+    else $modal.setAttribute('open', '');
+  }
+  function closeModal() {
+    if (!$modal.open) return;
+    if (typeof $modal.close === 'function') $modal.close();
+    else $modal.removeAttribute('open');
+  }
+  function openForm(cfg) {
+    $modal.innerHTML = '<form class="modal-card" id="modalForm" novalidate>' +
+      '<div class="modal-head"><h3>' + esc(cfg.title) + '</h3><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close">' + icon('x', 20) + '</button></div>' +
+      (cfg.sub ? '<p class="modal-sub">' + esc(cfg.sub) + '</p>' : '') +
+      '<div class="fields">' + cfg.fields.map(fieldHTML).join('') + '</div>' +
+      '<p class="form-error" id="formError" role="alert"></p>' +
+      '<div class="modal-foot"><button type="button" class="btn light" data-action="close-modal">Cancel</button>' +
+      '<button type="submit" class="btn primary" id="modalSubmit">' + esc(cfg.submit) + '</button></div></form>';
+    var form = $('modalForm'), errEl = $('formError'), submit = $('modalSubmit');
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (submit.disabled) return;
+      var fd = new FormData(form), data = {}, i;
+      cfg.fields.forEach(function (f) { var raw = String(fd.get(f.name) || ''); data[f.name] = f.type === 'password' ? raw : raw.trim(); });
+      for (i = 0; i < cfg.fields.length; i++) {
+        if (cfg.fields[i].required && !data[cfg.fields[i].name]) {
+          errEl.textContent = cfg.fields[i].label + ' is required.';
+          var bad = $('f-' + cfg.fields[i].name);
+          if (bad) bad.focus();
+          return;
+        }
+      }
+      var problem = cfg.validate ? cfg.validate(data) : '';
+      if (problem) { errEl.textContent = problem; return; }
+      errEl.textContent = '';
+      var res = cfg.onSubmit(data);
+      if (res && typeof res.then === 'function') {
+        submit.disabled = true;
+        res.then(function () { closeModal(); }, function (e) { errEl.textContent = e && e.message ? e.message : 'Something went wrong.'; submit.disabled = false; });
+      } else {
+        closeModal();
+      }
+    });
+    openDialog();
+  }
+
+  /* ---------- Forms ---------- */
+  function formTask() {
+    openForm({
+      title: 'New task', sub: 'What do you need to finish?', submit: 'Add task',
+      fields: [
+        { name: 'title', label: 'Task', required: true, max: 80, autofocus: true, placeholder: 'e.g., Finish the slide deck' },
+        { name: 'subject', label: 'Subject', max: 30, placeholder: 'e.g., Communication' },
+        { name: 'due', label: 'Due date', type: 'date', required: true, value: addDays(1) }
+      ],
+      validate: function (d) { return isValidISO(d.due) ? '' : 'Please choose a valid date.'; },
+      onSubmit: function (d) {
+        local.tasks.push({ id: uid(), title: d.title, subject: d.subject, due: d.due, done: false });
+        saveLocal(); render(); toast('Task added');
+      }
+    });
+  }
+  function formGroup() {
+    openForm({
+      title: 'New study group', sub: 'You will join it automatically.', submit: 'Create group',
+      fields: [
+        { name: 'name', label: 'Group name', required: true, max: 50, autofocus: true, placeholder: 'e.g., Physics Review Squad' },
+        { name: 'subject', label: 'Subject', max: 30, placeholder: 'e.g., Science' },
+        { name: 'schedule', label: 'When do you meet?', max: 40, placeholder: 'e.g., Mon, 5:00 PM' },
+        { name: 'desc', label: 'About the group', type: 'textarea', max: 140, placeholder: 'What will you do together?' }
+      ],
+      onSubmit: function (d) {
+        local.groups.push({ id: uid(), name: d.name, subject: d.subject || 'General', schedule: d.schedule, members: 0, joined: true, desc: d.desc });
+        saveLocal(); render(); toast('Group created');
+      }
+    });
+  }
+  function formEvent(date) {
+    openForm({
+      title: 'New event', sub: 'Add it to your calendar.', submit: 'Add event',
+      fields: [
+        { name: 'title', label: 'Event name', required: true, max: 80, autofocus: true, placeholder: 'e.g., Study session' },
+        { name: 'date', label: 'Date', type: 'date', required: true, value: isValidISO(date || '') ? date : todayISO() },
+        { name: 'time', label: 'Time', type: 'time', value: '17:00' },
+        { name: 'place', label: 'Place', max: 60, placeholder: 'e.g., Library' }
+      ],
+      validate: function (d) { return isValidISO(d.date) ? '' : 'Please choose a valid date.'; },
+      onSubmit: function (d) {
+        local.events.push({ id: uid(), title: d.title, date: d.date, time: d.time, place: d.place, going: true });
+        saveLocal(); render(); toast('Event added');
+      }
+    });
+  }
+  function formActivity() {
+    if (!isStaff()) return;
+    openForm({
+      title: 'Post an activity', sub: 'Your students will see it right away.', submit: 'Post activity',
+      fields: [
+        { name: 'title', label: 'Activity title', required: true, max: 100, autofocus: true, placeholder: 'e.g., Module 5 slide presentation' },
+        { name: 'body', label: 'Instructions', type: 'textarea', max: 1000, placeholder: 'What should students do?' },
+        { name: 'due', label: 'Due date', type: 'date', required: true, value: addDays(7) }
+      ],
+      validate: function (d) { return isValidISO(d.due) ? '' : 'Please choose a valid date.'; },
+      onSubmit: function (d) {
+        return api('POST', '/api/posts', { kind: 'activity', title: d.title, body: d.body, due: d.due }).then(function (r) {
+          mut++; sigs.posts = '';
+          shared.posts.unshift(r.post);
+          render(); toast('Activity posted');
+        });
+      }
+    });
+  }
+  function openAccount() {
+    var u = me();
+    $modal.innerHTML = '<div class="modal-card"><div class="modal-head"><h3>Your account</h3><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close">' + icon('x', 20) + '</button></div>' +
+      '<div class="idcard"><img class="logo" src="/pup-logo.png" alt=""><div><small>PUP TOGETHER member</small><b>' + esc(u.name) + '</b><span class="idno">' + esc(u.studentId || 'No ID on file') + '</span></div></div>' +
+      '<dl class="kv"><dt>Username</dt><dd>@' + esc(u.username) + '</dd><dt>Role</dt><dd>' + esc(roleLabel(u.role)) + '</dd><dt>Student ID</dt><dd>' + esc(u.studentId || 'Not set') + '</dd></dl>' +
+      '<div class="modal-foot"><button type="button" class="btn danger-ghost" data-action="reset-planner">Reset my planner</button>' +
+      '<button type="button" class="btn light" data-action="change-password">Change password</button>' +
+      '<button type="button" class="btn primary" data-action="logout">' + icon('logout', 16) + 'Log out</button></div></div>';
+    openDialog();
+  }
+
+  var ROLE_OPTIONS = [{ value: 'student', label: 'Student' }, { value: 'professor', label: 'Professor' }, { value: 'admin', label: 'Admin (full access)' }];
+  function idProblem(d) {
+    var id = String(d.studentId || '').toUpperCase();
+    if (d.role === 'student' && !/^\d{4}-\d{5}-[A-Z]{2}-\d$/.test(id)) return 'Student ID must look like 2026-00183-TG-0.';
+    return '';
+  }
+  function formAddAccount() {
+    if (!isAdmin()) return;
+    openForm({
+      title: 'Add an account', sub: 'Give the person their username and first password. They can change it after logging in.', submit: 'Create account',
+      fields: [
+        { name: 'name', label: 'Full name', required: true, max: 40, autofocus: true, placeholder: 'e.g., Juan Dela Cruz' },
+        { name: 'username', label: 'Username', required: true, max: 20, placeholder: 'letters, numbers, _ and .' },
+        { name: 'studentId', label: 'Student ID', max: 20, placeholder: '2026-00183-TG-0' },
+        { name: 'role', label: 'Role', type: 'select', options: ROLE_OPTIONS, value: 'student' },
+        { name: 'password', label: 'First password', type: 'password', required: true, max: 72, placeholder: 'at least 6 characters' }
+      ],
+      validate: function (d) {
+        if (!/^[A-Za-z0-9_.]{3,20}$/.test(d.username)) return 'Username must be 3 to 20 letters, numbers, _ or .';
+        var p = idProblem(d); if (p) return p;
+        if (d.password.length < 6) return 'Password must be at least 6 characters.';
+        return '';
+      },
+      onSubmit: function (d) {
+        return api('POST', '/api/admin/users', { name: d.name, username: d.username, studentId: d.studentId, role: d.role, password: d.password })
+          .then(function () { return reloadAfterAdmin().catch(function () { /* the poll will catch up */ }); })
+          .then(function () { toast('Account created for ' + d.name); });
+      }
+    });
+  }
+  function formEditAccount(id) {
+    var u = findById(admin.users, id);
+    if (!isAdmin() || !u) return;
+    openForm({
+      title: 'Edit account', sub: '@' + u.username, submit: 'Save changes',
+      fields: [
+        { name: 'name', label: 'Full name', required: true, max: 40, autofocus: true, value: u.name },
+        { name: 'studentId', label: 'Student ID', max: 20, value: u.studentId, placeholder: '2026-00183-TG-0' },
+        { name: 'role', label: 'Role', type: 'select', options: ROLE_OPTIONS, value: u.role },
+        { name: 'password', label: 'New password (leave empty to keep the current one)', type: 'password', max: 72 }
+      ],
+      validate: function (d) {
+        var p = idProblem(d); if (p) return p;
+        if (d.password && d.password.length < 6) return 'Password must be at least 6 characters.';
+        return '';
+      },
+      onSubmit: function (d) {
+        var body = { name: d.name, studentId: d.studentId, role: d.role };
+        if (d.password) body.password = d.password;
+        return api('PATCH', '/api/admin/users/' + id, body).then(function (r) {
+          if (id === me().id) session.user = Object.assign({}, session.user, { name: r.user.name, role: r.user.role, studentId: r.user.studentId });
+          return reloadAfterAdmin().catch(function () { /* the poll will catch up */ });
+        }).then(function () { toast('Account updated'); });
+      }
+    });
+  }
+  function deleteAccount(id) {
+    var u = findById(admin.users, id);
+    if (!isAdmin() || !u) return;
+    if (u.id === me().id) { toast('You cannot remove your own account.'); return; }
+    if (!window.confirm('Remove ' + u.name + ' (@' + u.username + ')?\n\nThey will be logged out and their private messages will be deleted. Their public posts stay on the board.')) return;
+    api('DELETE', '/api/admin/users/' + id)
+      .then(function () { return reloadAfterAdmin().catch(function () { /* the poll will catch up */ }); })
+      .then(function () { toast(u.name + ' was removed'); })
+      .catch(function (e) { toast(e.message); });
+  }
+  function formPassword() {
+    openForm({
+      title: 'Change password', sub: 'Choose something only you know.', submit: 'Save password',
+      fields: [
+        { name: 'current', label: 'Current password', type: 'password', ac: 'current-password', required: true, max: 72, autofocus: true },
+        { name: 'next', label: 'New password', type: 'password', required: true, max: 72, placeholder: 'at least 6 characters' },
+        { name: 'again', label: 'Type the new password again', type: 'password', required: true, max: 72 }
+      ],
+      validate: function (d) {
+        if (d.next.length < 6) return 'The new password must be at least 6 characters.';
+        if (d.next !== d.again) return 'The new passwords do not match.';
+        return '';
+      },
+      onSubmit: function (d) {
+        return api('POST', '/api/me/password', { current: d.current, next: d.next }).then(function () { toast('Password changed'); });
+      }
+    });
+  }
+
+  /* ---------- Actions ---------- */
+  function findById(list, id) {
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+  function removeById(list, id) {
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) { list.splice(i, 1); return true; }
+    return false;
+  }
+
+  function submitPost(form) {
+    if (ui.posting) return;
+    var ta = form.querySelector('textarea');
+    var text = ta.value.trim();
+    if (!text) { toast('Write something first.'); ta.focus(); return; }
+    ui.posting = true;
+    var btn = form.querySelector('[type=submit]');
+    if (btn) btn.disabled = true;
+    api('POST', '/api/posts', { kind: 'post', title: '', body: text }).then(function (r) {
+      ui.posting = false; mut++; sigs.posts = '';
+      shared.posts.unshift(r.post);
+      ui.drafts.board = '';
+      render(); toast('Posted');
+    }).catch(function (e) {
+      ui.posting = false;
+      if (btn) btn.disabled = false;
+      toast(e.message);
+    });
+  }
+
+  function openChat(id) {
+    if (!shared.byId[id]) return;
+    ui.chatWith = id; shared.convo = []; sigs.convo = ''; ui.stick = true; ui.convoLoading = true; mut++;
+    render();
+    api('GET', '/api/messages/' + id).then(function (d) {
+      if (ui.chatWith !== id) return;
+      mut++; shared.convo = d.messages; sigs.convo = JSON.stringify(d.messages); ui.convoLoading = false; ui.stick = true;
+      render(); markRead(id);
+    }).catch(function (e) {
+      if (ui.chatWith === id) { ui.convoLoading = false; render(); toast(e.message); }
+    });
+  }
+  function markRead(id) {
+    if (document.hidden || currentView() !== 'messages' || ui.chatWith !== id || ui.reading) return;
+    var need = shared.convo.some(function (m) { return m.from === id && !m.read; });
+    var th = shared.threads[id];
+    if (!need && !(th && th.unread > 0)) return;
+    ui.reading = true;
+    api('POST', '/api/messages/' + id + '/read', {}).then(function () {
+      ui.reading = false;
+      shared.convo.forEach(function (m) { if (m.from === id) m.read = true; });
+      var t = shared.threads[id]; if (t) t.unread = 0;
+      mut++; render();
+    }).catch(function () { ui.reading = false; });
+  }
+  function submitChat(form) {
+    var id = ui.chatWith;
+    if (!id || ui.sending) return;
+    var ta = form.querySelector('textarea');
+    var text = ta.value.trim();
+    if (!text) return;
+    ui.sending = true;
+    var btn = form.querySelector('[type=submit]');
+    if (btn) btn.disabled = true;
+    api('POST', '/api/messages/' + id, { text: text }).then(function (d) {
+      ui.sending = false; mut++;
+      ui.drafts['chat-' + id] = '';
+      var t = shared.threads[id] || { userId: id, unread: 0, last: null };
+      t.last = { id: d.message.id, from: d.message.from, text: d.message.text, at: d.message.at };
+      shared.threads[id] = t; sigs.threads = '';
+      if (ui.chatWith === id) { shared.convo.push(d.message); sigs.convo = ''; ui.stick = true; }
+      render();
+    }).catch(function (e) {
+      ui.sending = false;
+      toast(e.message);
+      render();
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+    var a = el.getAttribute('data-action');
+    var id = el.getAttribute('data-id');
+    var item;
+    switch (a) {
+      case 'toggle-theme': toggleTheme(); break;
+      case 'toggle-menu': setMenu(!document.body.classList.contains('menu-open')); break;
+      case 'close-menu': setMenu(false); break;
+      case 'close-modal': closeModal(); break;
+      case 'retry-boot': notice(''); boot(); break;
+      case 'auth-tab': setAuthTab(el.getAttribute('data-tab')); break;
+      case 'role-pick': setRole(el.getAttribute('data-role')); break;
+      case 'open-account': openAccount(); break;
+      case 'logout': logout(); break;
+      case 'reset-planner':
+        if (window.confirm('Reset your tasks, study groups, and events to the starter examples?')) {
+          local = seedLocal(); saveLocal(); closeModal(); render(); toast('Planner reset');
+        }
+        break;
+      case 'new-account': formAddAccount(); break;
+      case 'edit-account': formEditAccount(id); break;
+      case 'delete-account': deleteAccount(id); break;
+      case 'change-password': formPassword(); break;
+      case 'new-task': formTask(); break;
+      case 'new-group': formGroup(); break;
+      case 'new-event': formEvent(el.getAttribute('data-date')); break;
+      case 'new-activity': formActivity(); break;
+      case 'filter': ui.filter = el.getAttribute('data-filter') || 'all'; render(); break;
+      case 'delete-task':
+        if (removeById(local.tasks, id)) { saveLocal(); render(); toast('Task deleted'); }
+        break;
+      case 'toggle-group':
+        item = findById(local.groups, id);
+        if (item) { item.joined = !item.joined; saveLocal(); render(); toast(item.joined ? 'You joined ' + item.name : 'You left ' + item.name); }
+        break;
+      case 'delete-group':
+        item = findById(local.groups, id);
+        if (item && window.confirm('Delete "' + item.name + '"?')) { removeById(local.groups, id); saveLocal(); render(); toast('Group deleted'); }
+        break;
+      case 'rsvp':
+        item = findById(local.events, id);
+        if (item) { item.going = !item.going; saveLocal(); render(); toast(item.going ? 'You are going' : 'RSVP removed'); }
+        break;
+      case 'delete-event':
+        item = findById(local.events, id);
+        if (item && window.confirm('Delete "' + item.title + '"?')) { removeById(local.events, id); saveLocal(); render(); toast('Event deleted'); }
+        break;
+      case 'delete-post':
+        item = findById(shared.posts, id);
+        if (item && window.confirm('Delete this ' + (item.kind === 'activity' ? 'activity' : 'post') + '?')) {
+          api('DELETE', '/api/posts/' + id).then(function () {
+            mut++; sigs.posts = ''; removeById(shared.posts, id); render(); toast('Deleted');
+          }).catch(function (err) {
+            if (err.status === 404) { mut++; sigs.posts = ''; removeById(shared.posts, id); render(); }
+            else toast(err.message);
+          });
+        }
+        break;
+      case 'open-chat': openChat(id); break;
+      case 'chat-back': ui.chatWith = null; shared.convo = []; sigs.convo = ''; mut++; render(); break;
+      case 'cal-prev':
+      case 'cal-next':
+        var d = new Date(ui.cal.y, ui.cal.m + (a === 'cal-next' ? 1 : -1), 1);
+        ui.cal.y = d.getFullYear(); ui.cal.m = d.getMonth();
+        render(); break;
+      case 'cal-today':
+        ui.cal.y = new Date().getFullYear(); ui.cal.m = new Date().getMonth();
+        render(); break;
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el.getAttribute) return;
+    var kind = el.getAttribute('data-change');
+    if (kind === 'toggle-task') {
+      var t = findById(local.tasks, el.getAttribute('data-id'));
+      if (t) { t.done = !!el.checked; saveLocal(); render(); }
+    } else if (kind === 'toggle-signup') {
+      setSignup(!!el.checked);
+    } else if (kind === 'toggle-act') {
+      var aid = el.getAttribute('data-id');
+      if (el.checked) local.doneActs[aid] = true; else delete local.doneActs[aid];
+      saveLocal(); render();
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el.getAttribute) return;
+    var key = el.getAttribute('data-draft');
+    if (!key) return;
+    ui.drafts[key] = el.value;
+    if (key === 'board') { var c = $('cnt-board'); if (c) c.textContent = el.value.length + '/1000'; }
+    if (key === 'people' || key === 'accounts') render();
+    if (el.tagName === 'TEXTAREA' && key.indexOf('chat-') === 0) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') setMenu(false);
+    var el = e.target;
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && el && el.getAttribute && el.getAttribute('data-enter-submit') === '1' &&
+        window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+      e.preventDefault();
+      var f = el.form;
+      if (f) { if (f.requestSubmit) f.requestSubmit(); else { var b = f.querySelector('[type=submit]'); if (b) b.click(); } }
+    }
+  });
+
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    var kind = form.getAttribute && form.getAttribute('data-form');
+    if (!kind) return;
+    e.preventDefault();
+    if (kind === 'login') doLogin();
+    else if (kind === 'signup') doSignup();
+    else if (kind === 'post') submitPost(form);
+    else if (kind === 'chat') submitChat(form);
+  });
+
+  $modal.addEventListener('click', function (e) { if (e.target === $modal) closeModal(); });
+  window.addEventListener('hashchange', function () {
+    setMenu(false);
+    if (currentView() !== 'messages' && ui.chatWith) { ui.chatWith = null; shared.convo = []; sigs.convo = ''; mut++; }
+    window.scrollTo(0, 0);
+    render();
+    if (currentView() === 'accounts') loadAdmin();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && session && session.user) { poll(); if (ui.chatWith) markRead(ui.chatWith); }
+  });
+  window.addEventListener('online', function () { if (session && session.user) poll(); });
+  window.addEventListener('offline', function () { if (session && session.user) setOnline(false); });
+
+  $('menuBtn').innerHTML = icon('menu', 22);
+  applyTheme(currentTheme());
+  boot();
+})();
+</script>
+</body>
+</html>

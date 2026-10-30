@@ -1,0 +1,12 @@
+{
+  "name": "pup-together",
+  "version": "2.0.0",
+  "private": true,
+  "description": "PUP TOGETHER: a student hub with activities, posts, and messages",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
